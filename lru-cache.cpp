@@ -12,20 +12,27 @@ LRUCache::LRUCache(const int capacity) {
     this->dummy_tail->prev = nullptr;
 
     // link tail and head
-    this->dummy_tail->next = this->dummy_head;
-    this->dummy_head->prev = this->dummy_tail;
+    this->dummy_tail->prev = this->dummy_head;
+    this->dummy_head->next = this->dummy_tail;
 
     this->map = std::unordered_map<int, Node*>();
-    this->map.insert({this->dummy_head->key, this->dummy_head});
-    this->map.insert({this->dummy_tail->key, this->dummy_tail});
+    // this->map.insert({this->dummy_head->key, this->dummy_head});
+    // this->map.insert({this->dummy_tail->key, this->dummy_tail});
 }
 
 int LRUCache::get(int key) {
+    if (this->map.find(key) != this->map.end()) {
+
+    }
     return this->map[key]->value;
 }
 
 void LRUCache::put(int key, int value) {
 
+}
+
+void LRUCache::removeNode(Node* node) {
+    
 }
 
 LRUCache::~LRUCache() {

@@ -18,6 +18,7 @@ public:
     std::unordered_map<int, Node*> map;
     void put(int key, int value);
     int get(int key);
+    void removeNode(Node* node);
     ~LRUCache();
 
 private:
