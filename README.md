@@ -42,13 +42,13 @@ g++ (C++20 or higher)
 ## How to Compile and Run
 
 ```bash
-bash compile.sh
+bash scripts/compile.sh
 ```
 
 ## How to Run Only
 
 ```bash
-bash run.sh
+bash scripts/run.sh
 ```
 
 ---
