@@ -24,8 +24,8 @@ public:
 
 private:
     int capacity;
-    Node* dummy_head;
-    Node* dummy_tail;
+    Node* head;
+    Node* tail;
 };
 
 

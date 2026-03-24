@@ -2,12 +2,12 @@
 
 LRUCache::LRUCache(const int capacity) {
     this->capacity = capacity;
-    this->dummy_head = new Node();
-    this->dummy_tail = new Node();
+    this->head = new Node();
+    this->tail = new Node();
 
     // link tail and head
-    this->dummy_tail->prev = this->dummy_head;
-    this->dummy_head->next = this->dummy_tail;
+    this->tail->prev = this->head;
+    this->head->next = this->tail;
 
     this->um = std::unordered_map<int, Node*>();
 }
@@ -41,7 +41,7 @@ void LRUCache::put(int key, int value) {
     // case 3: new key, cache full -> evict LRU and add
     else {
         // evict lru
-        Node * n = this->dummy_tail->prev;
+        Node * n = this->tail->prev;
         this->removeNode(n);
         this->um.erase(n->key);
         delete n;
@@ -60,10 +60,10 @@ void LRUCache::removeNode(Node* node) {
 
 // push to head
 void LRUCache::push_head(Node* node) {
-    node->next = dummy_head->next; // point to the old first node
-    node->prev = dummy_head;
-    dummy_head->next->prev = node;
-    dummy_head->next = node;
+    node->next = head->next; // point to the old first node
+    node->prev = head;
+    head->next->prev = node;
+    head->next = node;
 }
 
 LRUCache::~LRUCache() {
