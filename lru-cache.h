@@ -3,6 +3,7 @@
 
 #include <list>
 #include <unordered_map>
+#include "page.h"
 
 struct Node {
     int key;
@@ -11,21 +12,22 @@ struct Node {
     Node* prev;
 };
 
-class LRUCache {
+class BufferPool {
 public:
-    LRUCache(const int capacity);
+    BufferPool(const int capacity);
     std::list<std::pair<int, int>> orders;
-    std::unordered_map<int, Node*> um;
-    void put(int key, int value);
+    std::unordered_map<int, Page*> map;
+    void pin(int key, int value);
     int get(int key);
-    void removeNode(Node* node);
-    void push_head(Node* node);
-    ~LRUCache();
+    void remove_page(Page* node);
+    void push_head(Page* node);
+    Page * findLRU
+    ~BufferPool();
 
 private:
     int capacity;
-    Node* head;
-    Node* tail;
+    Page* head;
+    Page* tail;
 };
 
 

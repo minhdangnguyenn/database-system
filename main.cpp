@@ -3,7 +3,7 @@
 #include <chrono>
 #include <random>
 #include <string>
-#include "lru-cache.h"
+#include "buffer-pool.h"
 #include "lru-cache-naive.h"
 
 // ─────────────────────────────────────────
@@ -21,13 +21,13 @@ void fail(const std::string& name) {
 //  BASIC TESTS
 // ─────────────────────────────────────────
 void test_basic() {
-    LRUCache cache(2);
-    cache.put(1, 1);
-    cache.put(2, 2);
+    BufferPool cache(2);
+    cache.pin(1, 1);
+    cache.pin(2, 2);
     assert(cache.get(1) == 1);
-    cache.put(3, 3);
+    cache.pin(3, 3);
     assert(cache.get(2) == -1);
-    cache.put(4, 4);
+    cache.pin(4, 4);
     assert(cache.get(1) == -1);
     assert(cache.get(3) == 3);
     assert(cache.get(4) == 4);
@@ -35,33 +35,33 @@ void test_basic() {
 }
 
 void test_update_existing() {
-    LRUCache cache(2);
-    cache.put(1, 10);
-    cache.put(2, 20);
-    cache.put(1, 99);
+    BufferPool cache(2);
+    cache.pin(1, 10);
+    cache.pin(2, 20);
+    cache.pin(1, 99);
     assert(cache.get(1) == 99);
-    cache.put(3, 30);
+    cache.pin(3, 30);
     assert(cache.get(2) == -1);
     assert(cache.get(3) == 30);
     pass("Update Existing");
 }
 
 void test_capacity_one() {
-    LRUCache cache(1);
-    cache.put(1, 1);
+    BufferPool cache(1);
+    cache.pin(1, 1);
     assert(cache.get(1) == 1);
-    cache.put(2, 2);
+    cache.pin(2, 2);
     assert(cache.get(1) == -1);
     assert(cache.get(2) == 2);
     pass("Capacity One");
 }
 
 void test_get_updates_recency() {
-    LRUCache cache(2);
-    cache.put(1, 1);
-    cache.put(2, 2);
+    BufferPool cache(2);
+    cache.pin(1, 1);
+    cache.pin(2, 2);
     cache.get(1);
-    cache.put(3, 3);
+    cache.pin(3, 3);
     assert(cache.get(1) == 1);
     assert(cache.get(2) == -1);
     assert(cache.get(3) == 3);
@@ -69,9 +69,9 @@ void test_get_updates_recency() {
 }
 
 void test_miss() {
-    LRUCache cache(3);
+    BufferPool cache(3);
     assert(cache.get(99) == -1);
-    cache.put(1, 100);
+    cache.pin(1, 100);
     assert(cache.get(2) == -1);
     pass("Cache Miss");
 }
@@ -80,9 +80,9 @@ void test_miss() {
 //  COMPLEX TESTS
 // ─────────────────────────────────────────
 void test_many_evictions() {
-    LRUCache cache(3);
+    BufferPool cache(3);
     for (int i = 0; i < 100; i++) {
-        cache.put(i, i * 10);
+        cache.pin(i, i * 10);
     }
     assert(cache.get(99) == 990);
     assert(cache.get(98) == 980);
@@ -93,13 +93,13 @@ void test_many_evictions() {
 }
 
 void test_get_prevents_eviction() {
-    LRUCache cache(3);
-    cache.put(1, 1);
-    cache.put(2, 2);
-    cache.put(3, 3);
+    BufferPool cache(3);
+    cache.pin(1, 1);
+    cache.pin(2, 2);
+    cache.pin(3, 3);
     cache.get(1);
     cache.get(3);
-    cache.put(4, 4);
+    cache.pin(4, 4);
     assert(cache.get(2) == -1);
     assert(cache.get(1) == 1);
     assert(cache.get(3) == 3);
@@ -108,12 +108,12 @@ void test_get_prevents_eviction() {
 }
 
 void test_alternating_operations() {
-    LRUCache cache(3);
-    cache.put(1, 10);
-    cache.put(2, 20);
+    BufferPool cache(3);
+    cache.pin(1, 10);
+    cache.pin(2, 20);
     assert(cache.get(1) == 10);
-    cache.put(3, 30);
-    cache.put(4, 40);
+    cache.pin(3, 30);
+    cache.pin(4, 40);
     assert(cache.get(2) == -1);
     assert(cache.get(1) == 10);
     assert(cache.get(3) == 30);
@@ -122,21 +122,21 @@ void test_alternating_operations() {
 }
 
 void test_repeated_updates() {
-    LRUCache cache(2);
+    BufferPool cache(2);
     for (int i = 0; i < 1000; i++) {
-        cache.put(1, i);
+        cache.pin(1, i);
     }
     assert(cache.get(1) == 999);
     pass("Repeated Updates");
 }
 
 void test_no_eviction_needed() {
-    LRUCache cache(5);
-    cache.put(1, 10);
-    cache.put(2, 20);
-    cache.put(3, 30);
-    cache.put(4, 40);
-    cache.put(5, 50);
+    BufferPool cache(5);
+    cache.pin(1, 10);
+    cache.pin(2, 20);
+    cache.pin(3, 30);
+    cache.pin(4, 40);
+    cache.pin(5, 50);
     assert(cache.get(1) == 10);
     assert(cache.get(2) == 20);
     assert(cache.get(3) == 30);
@@ -147,14 +147,14 @@ void test_no_eviction_needed() {
 
 void test_large_capacity() {
     int cap = 1000;
-    LRUCache cache(cap);
+    BufferPool cache(cap);
     for (int i = 0; i < cap; i++) {
-        cache.put(i, i * 2);
+        cache.pin(i, i * 2);
     }
     for (int i = 0; i < cap; i++) {
         assert(cache.get(i) == i * 2);
     }
-    cache.put(cap, cap * 2);
+    cache.pin(cap, cap * 2);
     pass("Large Capacity");
 }
 
@@ -162,7 +162,7 @@ void test_large_capacity() {
 //  BENCHMARK — OPTIMIZED
 // ─────────────────────────────────────────
 void benchmark(const std::string& name, int capacity, int operations, int key_range) {
-    LRUCache cache(capacity);
+    BufferPool cache(capacity);
     std::mt19937 gen(42);
     std::uniform_int_distribution<int> keyDist(0, key_range - 1);
     std::uniform_int_distribution<int> opDist(0, 1);
@@ -173,7 +173,7 @@ void benchmark(const std::string& name, int capacity, int operations, int key_ra
     for (int i = 0; i < operations; i++) {
         int key = keyDist(gen);
         if (opDist(gen) == 0) cache.get(key);
-        else cache.put(key, valDist(gen));
+        else cache.pin(key, valDist(gen));
     }
 
     auto end = std::chrono::high_resolution_clock::now();

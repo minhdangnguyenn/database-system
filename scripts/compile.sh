@@ -5,14 +5,12 @@ echo "     Building LRU Cache..."
 echo "==============================="
 
 # Create build folder if it doesn't exist
-if [ ! -d "build" ]; then
-    echo "Creating build folder..."
-    mkdir build
-    cd build
-    cmake ..
-else
-    cd build
-fi
+echo "Creating build folder..."
+rm -rf build/
+mkdir build
+cd build
+cmake ..
+
 
 # Build
 make
