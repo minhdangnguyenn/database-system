@@ -38,6 +38,10 @@ g++ (C++20 or higher)
 ```
 
 ---
+## How to Compile and Run
+```bash
+bash compile.sh
+```
 
 ## How to Run
 
