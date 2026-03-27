@@ -2,6 +2,100 @@
 
 > Build a disk-backed B+ Tree Index with Buffer Pool, then benchmark it against in-memory baselines.
 
+> Pseudocode for buffer manager connect with disk manager
+```bash
+BufferPool(capacity, disk_manager):
+    capacity = capacity
+    disk = disk_manager
+    page_table = {}      // page_id → Page*
+    free_frames = []     // list of empty frame slots
+    lru_list = []        // ordered by recency
+
+Page:
+    page_id  = -1
+    is_dirty = false
+    pin_count = 0
+    data[PAGE_SIZE] = empty
+
+// ─────────────────────────────────────────
+newPage():
+    frame = get_frame()
+    if frame == null → return null   // all pinned
+
+    page_id = disk.allocatePage()
+    frame.page_id  = page_id
+    frame.is_dirty = false
+    frame.pin_count = 1
+    frame.data = zeros
+
+    page_table[page_id] = frame
+    push_to_lru_front(frame)
+    return frame
+
+// ─────────────────────────────────────────
+fetchPage(page_id):
+    // cache hit
+    if page_id in page_table:
+        page = page_table[page_id]
+        page.pin_count++
+        move_to_front(page)
+        return page
+
+    // cache miss
+    frame = get_frame()
+    if frame == null → return null   // all pinned
+
+    disk.readPage(page_id, frame.data)
+    frame.page_id   = page_id
+    frame.is_dirty  = false
+    frame.pin_count = 1
+
+    page_table[page_id] = frame
+    push_to_lru_front(frame)
+    return frame
+
+// ─────────────────────────────────────────
+unpinPage(page_id, is_dirty):
+    if page_id not in page_table → return
+    page = page_table[page_id]
+    if page.pin_count == 0 → return
+
+    page.pin_count--
+    if is_dirty:
+        page.is_dirty = true
+
+// ─────────────────────────────────────────
+flushPage(page_id):
+    if page_id not in page_table → return
+    page = page_table[page_id]
+
+    disk.writePage(page_id, page.data)
+    page.is_dirty = false
+
+// ─────────────────────────────────────────
+get_frame():
+    // use free frame if available
+    if free_frames not empty:
+        return free_frames.pop()
+
+    // evict LRU unpinned page
+    victim = lru_tail
+    while victim != null:
+        if victim.pin_count == 0:
+            break
+        victim = victim.prev
+
+    if victim == null → return null  // all pinned
+
+    if victim.is_dirty:
+        disk.writePage(victim.page_id, victim.data)
+
+    page_table.erase(victim.page_id)
+    remove_from_lru(victim)
+    victim.reset()
+    return victim
+```
+
 ---
 
 ## Core Classes
