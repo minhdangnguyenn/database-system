@@ -1,3 +1,0 @@
-/home/minhnguyen/repo/LRU-Replacement-Policy/database/build/CMakeFiles/LRUCache.dir
-/home/minhnguyen/repo/LRU-Replacement-Policy/database/build/CMakeFiles/edit_cache.dir
-/home/minhnguyen/repo/LRU-Replacement-Policy/database/build/CMakeFiles/rebuild_cache.dir
