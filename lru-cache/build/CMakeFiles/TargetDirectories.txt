@@ -1,3 +1,0 @@
-/mnt/c/Users/HP/Documents/repo/database-system/lru-cache/build/CMakeFiles/LRUCache.dir
-/mnt/c/Users/HP/Documents/repo/database-system/lru-cache/build/CMakeFiles/edit_cache.dir
-/mnt/c/Users/HP/Documents/repo/database-system/lru-cache/build/CMakeFiles/rebuild_cache.dir
