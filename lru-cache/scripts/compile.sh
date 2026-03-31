@@ -19,4 +19,4 @@ echo "         Running Tests..."
 echo "==============================="
 echo ""
 
-./LRUCache
+./lrucache

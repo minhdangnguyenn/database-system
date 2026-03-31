@@ -5,7 +5,7 @@ echo "==============================="
 echo ""
 
 # Run the executable
-./build/LRUCache
+./build/lrucache
 
 # Check if tests passed
 if [ $? -ne 0 ]; then

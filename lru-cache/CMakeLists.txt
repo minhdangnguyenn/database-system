@@ -1,19 +1,29 @@
 cmake_minimum_required(VERSION 3.20)
-project(LRUCache)
+project(lrucache)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Explicitly list your files instead of GLOB_RECURSE
-file(GLOB SOURCES
-    "${CMAKE_SOURCE_DIR}/*.cpp"
-)
-
-# Exclude anything inside build folder
-list(FILTER SOURCES EXCLUDE REGEX "${CMAKE_SOURCE_DIR}/build/.*")
-
+# ─── Include headers from include/ folder ───
 include_directories(
-    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/include
 )
 
-add_executable(LRUCache ${SOURCES})
+# ─── Collect all source files from src/ ───
+file(GLOB_RECURSE SOURCES
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+)
+
+# ─── Main executable (benchmark) ───
+add_executable(lrucache
+    ${SOURCES}
+    ${CMAKE_SOURCE_DIR}/benchmark/benchmark.cpp
+)
+
+# ─── Tests executable ───
+# add_executable(tests
+#     ${SOURCES}
+#     ${CMAKE_SOURCE_DIR}/tests/test_lru.cpp
+#     ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.cpp
+#     ${CMAKE_SOURCE_DIR}/tests/test_bplus_tree.cpp
+# )
