@@ -1,6 +1,15 @@
-# LRU Replacement Policy
+# Database Management System (DBMS) Techniques
 
-A C++ implementation of an **LRU (Least Recently Used) cache / buffer pool**, built from scratch using a doubly linked list and hash map for true O(1) operations. The project also includes a disk-backed storage layer and a naive O(n) implementation for benchmarking comparison.
+> A from-scratch C++ exploration of how real database engines manage
+> memory, storage, and indexes under the hood.
+
+This repository implements core DBMS internals one module at a time,
+with benchmarks and visual analysis for each technique.
+
+**Modules**
+
+- **LRU Buffer Pool** — O(1) page eviction using a doubly linked list and hash map. Benchmarked against a naïve O(n) implementation.
+- **B+ Tree** *(in development)* — disk-backed index with buffer pool integration, supporting insert, search, and range scan.
 
 ---
 
@@ -8,29 +17,46 @@ A C++ implementation of an **LRU (Least Recently Used) cache / buffer pool**, bu
 
 ```
 .
-├── lru-cache/          # Standalone LRU cache (buffer pool only)
-└── database-system/    # Extended version with disk manager + replacer interface
+├── lru-cache/                  # LRU buffer pool — standalone, fully tested
+│   ├── includes/               # All header files
+│   │   ├── buffer-pool.h
+│   │   ├── lru-cache-naive.h
+│   │   ├── disk-manager.h
+│   │   └── test-data.h
+│   ├── benchmark/              # CSV results and PNG charts
+│   │   ├── benchmark_results.csv
+│   │   ├── benchmark_time_ms.png
+│   │   ├── benchmark_ns_per_op.png
+│   │   ├── benchmark_time_vs_capacity.png
+│   │   ├── benchmark_nsop_vs_capacity.png
+│   │   └── plot_benchmark.py
+│   ├── scripts/
+│   │   ├── compile.sh
+│   │   └── run.sh
+│   └── benchmark.cpp
+└── bplus-tree/                 # B+ tree with disk manager and replacer interface
+    ├── includes/               (developing)
+    └── scripts/
+    └── src/
+    └── benchmarks/
+    └── tests/
 ```
-
-Both directories share the same core implementation. `database-system` adds:
-- `DiskManager` — file-backed page I/O
-- `Replacer` — abstract interface for page replacement policies
-- `LRU` — concrete replacer implementation (work in progress)
 
 ---
 
-## How It Works
+## How It Works — LRU Buffer Pool
 
 ### Core Data Structures
 
-The `BufferPool` uses two doubly linked lists and two hash maps:
+The `BufferPool` uses two doubly linked lists and two hash maps to
+achieve O(1) for every operation.
 
 ```
-Main list (LRU order):
-head -- [MRU] -- page -- page -- [LRU] -- tail
+Main list (recency order — all pages):
+head ── [MRU] ── page ── page ── [LRU] ── tail
 
 Unpinned list (eviction candidates only):
-uhead -- [MRU unpinned] -- page -- [LRU unpinned] -- utail
+uhead ── [MRU unpinned] ── page ── [LRU unpinned] ── utail
 ```
 
 | Structure | Purpose |
@@ -38,53 +64,33 @@ uhead -- [MRU unpinned] -- page -- [LRU unpinned] -- utail
 | Main doubly linked list | Tracks recency order of all pages |
 | Unpinned doubly linked list | Tracks only evictable (unpinned) pages |
 | `unordered_map` | O(1) key → page pointer lookup |
-| `unpinned_map` | O(1) key → unpinned page pointer lookup |
+| `unpinned_map` | O(1) key → unpinned pointer lookup |
 
 ### Page Lifecycle
 
-- `pin(key, value)` — insert or update a page, mark it as **pinned** (not evictable), move to MRU
-- `get(key)` — read a page, move to MRU position, return `-1` on miss
-- `unpin(page*)` — mark a page as evictable, add to unpinned list
+- `pin(key, value)` — insert or update a page, mark it **pinned** (not evictable), move to MRU position.
+- `get(key)` — read a page, move to MRU position. Returns `-1` on miss.
+- `unpin(page*)` — mark a page as evictable, add to unpinned list.
 
-When the cache is full and a new page is needed, the **LRU unpinned page** is evicted. Pinned pages are never evicted.
+When the cache is full, the **LRU unpinned page** is evicted.
+Pinned pages are never evicted.
 
 ### Complexity
 
 | Operation | Time | Space |
 |---|---|---|
 | `get(key)` | O(1) | O(1) |
-| `pin(key, value)` | O(1) | O(n) |
-| `unpin(page*)` | O(1) | O(1) |
-
----
-
-## Components
-
-### `BufferPool`
-The main cache. Manages pages in memory using the dual linked list + hash map structure described above.
-
-### `Page`
-A cache entry holding a `key`, `value`, `pinned` flag, and four pointers for its position in both linked lists.
-
-### `LRUCacheNaive`
-A reference implementation using a `std::vector` with O(n) `get` and `put`. Used only for benchmarking.
-
-### `DiskManager` *(database-system only)*
-Handles file-backed page storage. Supports:
-- `allocatePage()` — returns a new page ID (reuses freed pages via a free list stack)
-- `deallocatePage(pageId)` — marks a page ID as reusable
-- `writePage(pageId, data)` / `readPage(pageId, data)` — fixed-size (4 KB) page I/O
-
-### `Replacer` *(database-system only)*
-Abstract interface for page replacement policies. `LRU` is the concrete implementation.
+| `pin(key, value)` | O(1) | O(n) total |
+| `unpin(page*)` | O(1) | O(n) total |
 
 ---
 
 ## Prerequisites
 
 ```bash
-cmake       # >= 3.20
-g++         # C++20 or higher
+cmake     # >= 3.20
+g++       # C++20 or higher
+python3   # for benchmark visualisation (matplotlib, pandas)
 ```
 
 ---
@@ -95,17 +101,19 @@ g++         # C++20 or higher
 # Compile
 bash scripts/compile.sh
 
-# Run (after compiling)
+# Run tests and benchmarks
 bash scripts/run.sh
-```
 
-Both scripts are in the `scripts/` directory of each project folder.
+# Visualise benchmark results
+python3 benchmark/plot_benchmark.py
+```
 
 ---
 
 ## Tests
 
-The test suite covers basic correctness, complex scenarios, and stress tests.
+The test suite covers basic correctness, complex edge cases, and stress
+scenarios with up to 100,000 entries and 5 million operations.
 
 ```
 ===============================
@@ -138,56 +146,103 @@ The test suite covers basic correctness, complex scenarios, and stress tests.
 
 ---
 
-## Benchmarks — O(1) vs Naive
+## Benchmarks — O(1) vs Naïve
 
-Both implementations run identical operations with the same random seed for a fair comparison.
+Both implementations run identical workloads with the same random seed
+for a fair comparison.
 
 | Implementation | Data Structure | `get` | `put` |
 |---|---|---|---|
-| O(1) | Doubly Linked List + HashMap | O(1) | O(1) |
-| Naive | Vector + Linear Scan | O(n) | O(n) |
+| Optimised | Doubly Linked List + HashMap | O(1) | O(1) |
+| Naïve | Vector + Linear Scan | O(n) | O(n) |
 
 ```
-===============================
-   O(1) vs NAIVE BENCHMARKS
-===============================
-
 --- Small cache, high contention ---
-[O(1)]   cap=10,      ops=5M,  key_range=20       →  361 ns/op
-[NAIVE]  cap=10,      ops=5M,  key_range=20       →  309 ns/op
+[O(1)]   cap=10        ops=5M  key_range=20        →    361 ns/op
+[NAIVE]  cap=10        ops=5M  key_range=20        →    309 ns/op
 
 --- Medium cache, normal use ---
-[O(1)]   cap=1000,   ops=5M,  key_range=2000      →  399 ns/op
-[NAIVE]  cap=1000,   ops=5M,  key_range=2000      → 5106 ns/op  (~13x slower)
+[O(1)]   cap=1,000     ops=5M  key_range=2,000     →    399 ns/op
+[NAIVE]  cap=1,000     ops=5M  key_range=2,000     →  5,106 ns/op  (~13x slower)
 
 --- Large cache, high eviction ---
-[O(1)]   cap=100,    ops=5M,  key_range=100000    →  416 ns/op
-[NAIVE]  cap=100,    ops=5M,  key_range=100000    →  846 ns/op  (~2x slower)
+[O(1)]   cap=100       ops=5M  key_range=100,000   →    416 ns/op
+[NAIVE]  cap=100       ops=5M  key_range=100,000   →    846 ns/op  (~2x slower)
 
---- Large cache, low eviction (O(1) only — Naive too slow) ---
-[O(1)]   cap=100000, ops=5M,  key_range=100000    →  537 ns/op
-[O(1)]   cap=1000000,ops=5M,  key_range=1000000   →  297 ns/op
+--- Large / Massive cache (O(1) only — Naïve skipped, too slow) ---
+[O(1)]   cap=100,000   ops=5M  key_range=100,000   →    537 ns/op
+[O(1)]   cap=1,000,000 ops=5M  key_range=1,000,000 →    297 ns/op
 ```
 
 ### Summary
 
-| Scenario | Capacity | O(1) | Naive | Speedup |
+| Scenario | Capacity | O(1) | Naïve | Speedup |
 |---|---|---|---|---|
 | Small, high contention | 10 | 361 ns | 309 ns | ~1x |
-| Medium, normal use | 1,000 | 399 ns | 5,106 ns | ~13x |
+| Medium, normal use | 1,000 | 399 ns | 5,106 ns | **~13x** |
 | Large, high eviction | 100 | 416 ns | 846 ns | ~2x |
 | Large, low eviction | 100,000 | 537 ns | N/A | — |
 | Massive cache | 1,000,000 | 297 ns | N/A | — |
 
-The O(1) implementation maintains consistent ~300–540 ns/op regardless of cache size. The naive implementation degrades sharply with capacity and was skipped entirely for large/massive sizes.
+The O(1) implementation holds a consistent **~300–540 ns/op** regardless
+of cache size. The naïve implementation degrades sharply as capacity
+grows because every eviction requires a full linear scan.
+
+> **Note — Small cache anomaly:** The naïve implementation is slightly
+> faster at capacity=10 because scanning 10 items costs less than
+> the hash map overhead in O(1). This is expected and disappears
+> completely once capacity grows.
+
+### Time (ms) per workload
+
+![benchmark time ms](./lru-cache/benchmark/benchmark_time_ms.png)
+
+### Latency per operation (ns/op) per workload
+
+![benchmark ns per op](./lru-cache/benchmark/benchmark_ns_per_op.png)
+
+### Time (ms) vs capacity — log scale
+
+![benchmark time vs capacity](./lru-cache/benchmark/benchmark_time_vs_capacity.png)
+
+### ns/op vs capacity — log scale
+
+![benchmark nsop vs capacity](./lru-cache/benchmark/benchmark_nsop_vs_capacity.png)
+
+[→ Full benchmark results and raw CSV](./lru-cache/benchmark/)
+
+---
+
+## Disk Manager
+
+The `DiskManager` provides page-level file I/O on top of a binary file.
+
+- `allocatePage()` — reserves a new page slot and returns its page ID.
+- `writePage(id, buf)` — writes a fixed-size page buffer to disk at the correct offset.
+- `readPage(id, buf)` — reads a page back from disk into a buffer.
+
+Pages are fixed-size (`PAGE_SIZE` bytes). The disk file grows as pages
+are allocated. This layer simulates how a real storage engine separates
+logical page IDs from physical file offsets.
 
 ---
 
 ## What's Next
 
-The `database-system/idea.md` outlines the planned evolution into a full mini storage engine:
-
 - Refactor buffer pool into `BufferPoolManager` + `Replacer` + `Page`
-- Add disk-backed page persistence
-- Implement a B+ Tree index (insert, search, range scan, delete)
-- Benchmark against `std::map` and `std::unordered_map` across OLTP and range-scan workloads
+- Add disk-backed page persistence via `DiskManager`
+- Implement a B+ Tree index — insert, search, range scan, delete
+- Benchmark B+ Tree against `std::map` and `std::unordered_map` across OLTP and range-scan workloads
+
+---
+
+## Learning Goals
+
+This project is built to understand how real database engines work
+at the component level — not just to implement algorithms, but to
+measure, compare, and reason about tradeoffs.
+
+Each module includes:
+- A working implementation with tests
+- A benchmark comparing design choices
+- Visual output to make the numbers concrete
