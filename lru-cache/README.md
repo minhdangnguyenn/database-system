@@ -1,6 +1,15 @@
-# Buffer Pool — C++ Implementation
+# Buffer Pool and LRU — C++ Implementation
 
 A **Buffer Pool** implemented in C++ using a **Doubly Linked List** + **Hash Map** for O(1) `pin`, `get`, and `unpin` operations — modelled after real database buffer pool managers.
+
+### Benchmark time with capacity -- Compare between Naive LRU and optimized LRU
+![benchmark lru time vs capacity](./benchmark/benchmark_time_vs_capacity.png)
+
+### Benchmark time in ms -- Compare between Naive LRU and optimized LRU
+![benchmark lru time vs capacity](./benchmark/benchmark_time_ms.png)
+
+### More benchmark results in 
+[LRU Benchmark](./benchmark/)
 
 ---
 
