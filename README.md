@@ -193,10 +193,6 @@ grows because every eviction requires a full linear scan.
 > the hash map overhead in O(1). This is expected and disappears
 > completely once capacity grows.
 
-### Time (ms) per workload
-
-![benchmark time ms](./lru-cache/benchmark/benchmark_time_ms.png)
-
 ### Latency per operation (ns/op) per workload
 
 ![benchmark ns per op](./lru-cache/benchmark/benchmark_ns_per_op.png)
@@ -204,10 +200,6 @@ grows because every eviction requires a full linear scan.
 ### Time (ms) vs capacity — log scale
 
 ![benchmark time vs capacity](./lru-cache/benchmark/benchmark_time_vs_capacity.png)
-
-### ns/op vs capacity — log scale
-
-![benchmark nsop vs capacity](./lru-cache/benchmark/benchmark_nsop_vs_capacity.png)
 
 [→ Full benchmark results and raw CSV](./lru-cache/benchmark/)
 
