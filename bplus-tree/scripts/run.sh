@@ -5,7 +5,7 @@ echo "==============================="
 echo ""
 
 # Run the executable
-./build/LRUCache
+./build/dbms
 
 # Check if tests passed
 if [ $? -ne 0 ]; then
