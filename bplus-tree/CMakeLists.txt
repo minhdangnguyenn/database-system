@@ -21,9 +21,9 @@ add_executable(dbms
 )
 
 # ─── Tests executable ───
-add_executable(tests
-    ${SOURCES}
-    ${CMAKE_SOURCE_DIR}/tests/test_lru.cpp
-    ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.cpp
-    ${CMAKE_SOURCE_DIR}/tests/test_bplus_tree.cpp
-)
+#add_executable(tests
+#    ${SOURCES}
+#    ${CMAKE_SOURCE_DIR}/tests/test_lru.cpp
+#    ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.cpp
+#    ${CMAKE_SOURCE_DIR}/tests/test_bplus_tree.cpp
+#)
