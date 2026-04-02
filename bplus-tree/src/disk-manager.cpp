@@ -1,8 +1,8 @@
-#include "disk-manager.h"
+#include "../include/disk-manager.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "test-data.h"
+#include "../include/test-data.h"
 
 DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
     file_.open(filename, std::ios::in|std::ios::out|std::ios::binary);
@@ -16,40 +16,44 @@ DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
     }
 }
 
-void DiskManager::writePage(int pageId, const char* data) {
-    file_.clear();
-    file_.seekp(pageId * PAGE_SIZE);
-    file_.write(data, PAGE_SIZE);
-    file_.flush();
-}
+int DiskManager::allocate_page() {
+    int page_id = this->numPages_ + 1;
+};
 
-void DiskManager::readPage(int pageId, char* data) {
-    file_.clear();
-    file_.seekg(pageId * PAGE_SIZE);
-    file_.read(data, PAGE_SIZE);
-}
+// void DiskManager::writePage(int pageId, const char* data) {
+//     file_.clear();
+//     file_.seekp(pageId * PAGE_SIZE);
+//     file_.write(data, PAGE_SIZE);
+//     file_.flush();
+// }
 
-int DiskManager::allocatePage() {
-    // need to focus on free list
-    // get the free page id
-    if (!freeList_.empty()) {
-        int id = freeList_.top(); //LIFO stack -- pop the last element
-        freeList_.pop();
-        return id;
-    }
-    return numPages_++;
-}
+// void DiskManager::readPage(int pageId, char* data) {
+//     file_.clear();
+//     file_.seekg(pageId * PAGE_SIZE);
+//     file_.read(data, PAGE_SIZE);
+// }
 
-void DiskManager::deallocatePage(int pageId) {
-    freeList_.push(pageId);
-}
+// int DiskManager::allocatePage() {
+//     // need to focus on free list
+//     // get the free page id
+//     if (!freeList_.empty()) {
+//         int id = freeList_.top(); //LIFO stack -- pop the last element
+//         freeList_.pop();
+//         return id;
+//     }
+//     return numPages_++;
+// }
 
-int DiskManager::getNumPages() const {
-    return numPages_;
-}
+// void DiskManager::deallocatePage(int pageId) {
+//     freeList_.push(pageId);
+// }
 
-DiskManager::~DiskManager() {
-    if (file_.is_open()) {
-        file_.close();
-    }
-}
+// int DiskManager::getNumPages() const {
+//     return numPages_;
+// }
+
+// DiskManager::~DiskManager() {
+//     if (file_.is_open()) {
+//         file_.close();
+//     }
+// }

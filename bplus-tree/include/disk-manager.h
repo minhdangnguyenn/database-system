@@ -11,15 +11,16 @@ public:
     ~DiskManager();
 
     // Core I/O
-    void writePage(int pageId, const char* data);  // write PAGE_SIZE bytes
-    void readPage(int pageId, char* data);  // read  PAGE_SIZE bytes
+    void write_page(int page_id, const char* data);  // write PAGE_SIZE bytes
+    int allocate_page();
+    // void readPage(int pageId, char* data);  // read  PAGE_SIZE bytes
 
-    // Page management
-    int  allocatePage();   // returns new pageId, increments counter
-    void deallocatePage(int pageId); // marks page as free for reuse
+    // // Page management
+    // int  allocatePage();   // returns new pageId, increments counter
+    // void deallocatePage(int pageId); // marks page as free for reuse
 
-    // Info
-    int getNumPages() const;
+    // // Info
+    // int getNumPages() const;
 private:
     std::fstream  file_;       // binary file handle
     std::string   filename_;
