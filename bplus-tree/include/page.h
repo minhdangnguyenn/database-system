@@ -20,7 +20,7 @@ public:
     bool pinned = false;
 
     Page() : key(0), value(0), pinned(false) {}
-    Page(int key, int value) :  
+    Page(int key, int value) :
         key(key),
         value(value),
         pinned(false),
