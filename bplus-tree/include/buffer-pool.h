@@ -5,13 +5,12 @@
 #include <unordered_map>
 #include "disk-manager.h"
 #include "lru.h"
-#include "page.h"
 
 class BufferPool {
     public:
         BufferPool(const int capacity);
         int create_new_page();
-        void fetch_page();
+        int* fetch_page(int page_id);
         void unpin_page(int page_id, bool is_dirty);
         void flush_page(int page_id);
         int get_frame();

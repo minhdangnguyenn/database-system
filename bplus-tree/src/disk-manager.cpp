@@ -1,7 +1,6 @@
 #include "../include/disk-manager.h"
 #include <iostream>
 #include <fstream>
-#include <cstring>
 #include "../include/test-data.h"
 
 DiskManager::DiskManager(const std::string& filename) : filename_(filename) {

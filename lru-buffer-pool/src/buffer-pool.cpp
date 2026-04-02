@@ -1,5 +1,5 @@
-#include "buffer-pool.h"
-#include "page.h"
+#include "../include/buffer-pool.h"
+#include "../include/page.h"
 #include <unordered_map>
 #include <iostream>
 

@@ -1,4 +1,4 @@
-#include "lru-cache-naive.h"
+#include "../include/lru-cache-naive.h"
 
 LRUCacheNaive::LRUCacheNaive(int capacity) {
     this->capacity = capacity;
