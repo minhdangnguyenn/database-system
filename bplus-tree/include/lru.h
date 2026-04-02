@@ -8,6 +8,8 @@ class LRU : public Replacer {
 public:
     LRU(size_t num_pages);
     ~LRU() override = default;
+    // param &frame_id is just a sentinel param
+    // it will be set inside this function
     bool evict(int& frame_id) override;
     void pin(int) override;
     void unpin(int) override;

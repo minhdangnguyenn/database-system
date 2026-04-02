@@ -6,7 +6,7 @@ bool LRU::evict(int& frame_id) {
     if (orders.empty()) {
         return false;
     }
-    // get the id of the leasr recentlz used frame
+    // get the id of the leasr recently used frame
     frame_id = orders.front();
     if (candidates.find(frame_id) == candidates.end()) {
         return false;

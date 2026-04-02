@@ -10,7 +10,7 @@
 class BufferPool {
     public:
         BufferPool(const int capacity);
-        void create_new_page();
+        int create_new_page();
         void fetch_page();
         void unpin_page(int page_id, bool is_dirty);
         void flush_page(int page_id);
@@ -28,7 +28,7 @@ class BufferPool {
     private:
         int capacity;
         std::unordered_map<int, int> page_table; // Map page_id -> frame_id
-        std::list<int> free_list; // list of free frame_ids
+        std::list<int> free_frame_list; // list of free frame_ids
         Replacer * replacer; // eviction policy e.g. LRU
         DiskManager* disk;
         // Page* head;
