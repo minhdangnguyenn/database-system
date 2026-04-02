@@ -1,4 +1,4 @@
-#include "lru.h"
+#include "../include/lru.h"
 #include <cstddef>
 
 LRU::LRU(size_t num_pages) : num_pages(num_pages) {}
@@ -25,7 +25,7 @@ bool LRU::evict(int& frame_id) {
 
 void LRU::pin(int frame_id) {
     auto frame_iter = candidates.find(frame_id);
-    if (!candidates.contains(frame_id)) {} 
+    if (!candidates.contains(frame_id)) {}
     else {
         // this frame is now in use — remove it from the LRU list so it cannot be evicted
         orders.erase(candidates[frame_id]);
