@@ -1,10 +1,6 @@
 #include "../include/buffer-pool.h"
 #include "../include/lru.h"
 #include "../include/disk-manager.h"
-#include "../include/page.h"
-#include <charconv>
-#include <iterator>
-#include <map>
 #include <unordered_map>
 #include <iostream>
 
