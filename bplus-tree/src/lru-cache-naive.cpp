@@ -7,7 +7,7 @@ LRUCacheNaive::LRUCacheNaive(int capacity) {
 int LRUCacheNaive::get(int key) {
     // Loop through to find the key — O(n)
     for (int i = 0; i < cache.size(); i++) {
-        if (cache[i].getKey() == key) {
+        if (cache[i].get_key() == key) {
             int value = cache[i].getValue();
 
             // Move to front (MRU) — O(n)
@@ -23,7 +23,7 @@ int LRUCacheNaive::get(int key) {
 void LRUCacheNaive::put(int key, int value) {
     // Check if key already exists — O(n)
     for (int i = 0; i < cache.size(); i++) {
-        if (cache[i].getKey() == key) {
+        if (cache[i].get_key() == key) {
             // Update value and move to front
             cache.erase(cache.begin() + i);
             cache.insert(cache.begin(), Page(key, value));
