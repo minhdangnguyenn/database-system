@@ -10,6 +10,7 @@ BufferPool::BufferPool(const int capacity) : capacity(capacity) {
     const std::string DB_FILENAME = "mydb.db";
     this->disk = new DiskManager(DB_FILENAME);
     this->page_table = {};
+    this->frames.resize(capacity);
 }
 
 int BufferPool::create_new_page() {

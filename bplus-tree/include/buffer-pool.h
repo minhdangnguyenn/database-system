@@ -26,8 +26,8 @@ public:
     ~BufferPool();
 
 private:
-    std::vector<Frame*> frames;
-    int capacity;
+    int capacity = 0;
+    std::vector<Frame> frames;
     std::unordered_map<int, int> page_table; // Map page_id -> frame_id
     std::list<int> free_frame_list;          // list of free frame_ids
     Replacer *replacer;                    // eviction policy e.g. LRU
