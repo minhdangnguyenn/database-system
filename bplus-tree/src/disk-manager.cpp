@@ -1,6 +1,7 @@
 #include "../include/disk-manager.h"
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include "../include/test-data.h"
 
 DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
@@ -29,6 +30,9 @@ int DiskManager::allocate_page() {
 };
 
 void DiskManager::write_page(int page_id, const char* data) {
+    if (page_id >= this->num_pages_ || page_id < 0) {
+        throw std::out_of_range("PAGE_ID out of range in write_page !");
+    }
     file_.clear();
     file_.seekp(page_id * PAGE_SIZE);
     file_.write(data, PAGE_SIZE);
