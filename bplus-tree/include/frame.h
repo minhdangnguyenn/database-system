@@ -9,7 +9,7 @@ public:
     bool get_dirty() const { return this->is_dirty; }
     void set_dirty(bool dirty) { this->is_dirty = dirty; }
     int get_pin_count() const { return this->pin_count; }
-    // Page* get_page();
+    void set_pin_count(int pin_count) { this->pin_count = pin_count; }
     int get_pid() const { return this->page_id; }
     void set_pid(int page_id) { this->page_id = page_id; }
     char* get_data() { return &data[PAGE_SIZE]; }

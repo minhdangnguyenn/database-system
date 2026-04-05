@@ -1,4 +1,4 @@
-#include "../include/test_lru.h"
+#include "include/test-lru.h"
 #include <cassert>
 #include <iostream>
 
@@ -349,11 +349,11 @@ void TEST_LRU::test_size()
     delete lru;
 }
 
-int main() {
-    auto lru = new TEST_LRU();
-    lru->test_duplicate_unpin();
-    lru->test_unpin_then_evict();
-    lru->test_evict_empty();
-    lru->test_pin_prevents_eviction();
-    lru->test_lru_order();
+void TEST_LRU::run_all() {
+    test_evict_empty();
+    test_unpin_then_evict();
+    test_pin_prevents_eviction();
+    test_duplicate_unpin();
+    test_lru_order();
+    test_size();
 }

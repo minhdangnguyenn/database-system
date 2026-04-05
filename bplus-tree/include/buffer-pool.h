@@ -4,7 +4,6 @@
 #include "disk-manager.h"
 #include "frame.h"
 #include "lru.h"
-// #include "page.h"
 #include <list>
 #include <unordered_map>
 #include <vector>
@@ -17,14 +16,6 @@ public:
     void unpin_page(int page_id, bool is_dirty);
     void flush_page(int page_id);
     int get_frame();
-    // std::unordered_map<int, Page*> map;
-    // std::unordered_map<int, Page*> unpinned_map;
-    // void pin(int key, int value);
-    // void unpin(Page*);
-    // int get(int key);
-    // void remove_page(Page*);
-    // void push_head(Page*);
-    // void remove_unpin(Page*);
     ~BufferPool();
 
 private:

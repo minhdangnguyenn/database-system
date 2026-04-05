@@ -128,9 +128,28 @@ void BufferPool::flush_page(int page_id) {
     }
 }
 
+void BufferPool::unpin_page(int page_id, bool is_dirty) {
+    if (!this->page_table.count(page_id)) return; // do nothing
+    else {
+        int frame_id = this->page_table.find(page_id)->second;
+        Frame* target_frame = &this->frames[frame_id];
+
+        if (target_frame->get_pin_count() == 0) return;
+        target_frame->set_pin_count(this->frames[frame_id].get_pin_count()-1);
+
+        if (is_dirty) {
+            target_frame->set_dirty(true);
+        }
+
+        if (target_frame->get_pin_count() == 0) {
+            this->replacer->unpin(frame_id);
+        }
+    }
+}
+
 BufferPool::~BufferPool() {
-  this->free_frame_list.clear();
-  this->page_table.clear();
-  delete this->disk;
-  delete this->replacer;
+    this->free_frame_list.clear();
+    this->page_table.clear();
+    delete this->disk;
+    delete this->replacer;
 }

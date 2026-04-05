@@ -23,7 +23,9 @@ file(GLOB_RECURSE SOURCES
 # ─── Tests executable ───
 add_executable(tests
      ${SOURCES}
-     ${CMAKE_SOURCE_DIR}/tests/test_lru.cpp
-     ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.h
-#    ${CMAKE_SOURCE_DIR}/tests/test_bplus_tree.cpp
+     ${CMAKE_SOURCE_DIR}/tests/include/test-lru.h
+     ${CMAKE_SOURCE_DIR}/tests/include/test-buffer-pool.h
+     ${CMAKE_SOURCE_DIR}/tests/test-lru.cpp
+     ${CMAKE_SOURCE_DIR}/tests/test-buffer-pool.cpp
+     ${CMAKE_SOURCE_DIR}/tests/main.cpp
 )
