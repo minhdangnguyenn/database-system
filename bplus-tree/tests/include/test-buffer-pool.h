@@ -1,12 +1,7 @@
 #ifndef TEST_BUFFER_POOL_H
 #define TEST_BUFFER_POOL_H
 
-#include "../../include/buffer-pool.h"
-#include "../../include/disk-manager.h"
-#include "../../include/test-data.h"
 #include <cassert>
-#include <cstring>
-#include <iostream>
 #include <string>
 
 class TestBufferPool {
