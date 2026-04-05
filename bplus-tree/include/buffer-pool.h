@@ -2,8 +2,9 @@
 #define LRU_CACHE_H
 
 #include "disk-manager.h"
+#include "frame.h"
 #include "lru.h"
-#include "page.h"
+// #include "page.h"
 #include <list>
 #include <unordered_map>
 #include <vector>
@@ -33,12 +34,6 @@ private:
     std::list<int> free_frame_list;          // list of free frame_ids
     Replacer *replacer;                    // eviction policy e.g. LRU
     DiskManager *disk;
-
-    // Page* head;
-    // Page* tail;
-
-    // Page* utail;
-    // Page* uhead;
 };
 
 #endif // LRU_CACHE_H

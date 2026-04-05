@@ -111,6 +111,23 @@ char* BufferPool::fetch_page(int page_id) {
     }
 }
 
+/*
+ * Flush a frame in buffer pool into disk
+ */
+void BufferPool::flush_page(int page_id) {
+    auto iter = this->page_table.find(page_id);
+    if (iter == this->page_table.end()) {
+        std::cout << "PAGE ID" + std::to_string(page_id) + "CANNOT FOUND WHILE FLUSHING PAGE" << std::endl;
+    } else {
+        int frame_id = iter->second;
+        Frame* target_frame = &this->frames[frame_id];
+
+        // write of the page_id into disk
+        this->disk->write_page(page_id, target_frame->get_data());
+        target_frame->set_dirty(false);
+    }
+}
+
 BufferPool::~BufferPool() {
   this->free_frame_list.clear();
   this->page_table.clear();

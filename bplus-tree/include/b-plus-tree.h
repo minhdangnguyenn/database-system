@@ -10,7 +10,7 @@ class BPlusTree: public IndexStrategy {
         void remove(int key) override;
         void range_scan(int low, int high, std::vector<int>& results) override;
     private:
-        
+
 };
 
 #endif // !B_TREE

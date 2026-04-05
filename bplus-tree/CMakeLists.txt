@@ -15,15 +15,15 @@ file(GLOB_RECURSE SOURCES
 )
 
 # ─── Main executable (benchmark) ───
-add_executable(dbms
-    ${SOURCES}
-    ${CMAKE_SOURCE_DIR}/benchmark/benchmark.cpp
-)
+# add_executable(dbms
+#     ${SOURCES}
+#     ${CMAKE_SOURCE_DIR}/benchmark/benchmark.cpp
+# )
 
 # ─── Tests executable ───
 add_executable(tests
      ${SOURCES}
      ${CMAKE_SOURCE_DIR}/tests/test_lru.cpp
-#    ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.cpp
+     ${CMAKE_SOURCE_DIR}/tests/test_buffer_pool.h
 #    ${CMAKE_SOURCE_DIR}/tests/test_bplus_tree.cpp
 )

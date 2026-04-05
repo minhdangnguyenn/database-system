@@ -1,7 +1,6 @@
 #ifndef DISK_MANAGER_H
 #define DISK_MANAGER_H
 
-#include "frame.h"
 #include <fstream>
 #include <list>
 #include <string>
