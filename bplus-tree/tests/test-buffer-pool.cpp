@@ -1,4 +1,10 @@
 #include "include/test-buffer-pool.h"
+#include "../include/disk-manager.h"
+#include "../include/test-data.h"
+#include "../include/buffer-pool.h"
+#include <cstring>
+#include <iostream>
+
 
 void TestBufferPool::pass(const std::string& name) {
     std::cout << "[PASS] " << name << std::endl;
