@@ -3,6 +3,7 @@
 #include <ostream>
 
 int BPlusTree::lookup(int key) {
+    std::cout << "NOT IMPLEMENTED YET" << std::endl;
     return 0;
 }
 
