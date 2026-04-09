@@ -5,11 +5,11 @@
 #include <chrono>
 #include <random>
 #include <string>
-#include "buffer-pool.h"
-#include "disk-manager.h"
-#include "lru-cache-naive.h"
-#include "lru.h"
-#include "test-data.h"
+#include "../include/buffer-pool.h"
+#include "../include/disk-manager.h"
+#include "../include/lru-cache-naive.h"
+#include "../include/lru.h"
+#include "../include/test-data.h"
 
 // ─────────────────────────────────────────
 //  TIMING MACRO

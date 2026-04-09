@@ -1,8 +1,8 @@
-#include "disk-manager.h"
+#include "../include/disk-manager.h"
 #include <iostream>
 #include <fstream>
-#include <cstring>
-#include "test-data.h"
+#include <stdexcept>
+#include "../include/test-data.h"
 
 DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
     file_.open(filename, std::ios::in|std::ios::out|std::ios::binary);
@@ -16,37 +16,42 @@ DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
     }
 }
 
-void DiskManager::writePage(int pageId, const char* data) {
+int DiskManager::allocate_page() {
+    this->num_pages_ += 1;
+    int new_page_id = this->num_pages_;
+
+    // create a page at empty byte in the file
+    // wirte empty byte into the file
+    char zero_buffer[PAGE_SIZE] = {};
+
+    this->write_page(new_page_id, zero_buffer);
+    // return the new page_id correspond
+    return new_page_id;
+};
+
+void DiskManager::write_page(int page_id, const char* data) {
+    if (page_id >= this->num_pages_ || page_id < 0) {
+        throw std::out_of_range("PAGE_ID out of range in write_page !");
+    }
     file_.clear();
-    file_.seekp(pageId * PAGE_SIZE);
+    file_.seekp(page_id * PAGE_SIZE);
     file_.write(data, PAGE_SIZE);
     file_.flush();
 }
 
-void DiskManager::readPage(int pageId, char* data) {
+void DiskManager::read_page(int page_id, char* data) {
     file_.clear();
-    file_.seekg(pageId * PAGE_SIZE);
+    file_.seekg(page_id * PAGE_SIZE);
     file_.read(data, PAGE_SIZE);
 }
 
-int DiskManager::allocatePage() {
-    // need to focus on free list
-    // get the free page id
-    if (!freeList_.empty()) {
-        int id = freeList_.top(); //LIFO stack -- pop the last element
-        freeList_.pop();
-        return id;
-    }
-    return numPages_++;
-}
+// void DiskManager::deallocatePage(int pageId) {
+//     freeList_.push(pageId);
+// }
 
-void DiskManager::deallocatePage(int pageId) {
-    freeList_.push(pageId);
-}
-
-int DiskManager::getNumPages() const {
-    return numPages_;
-}
+// int DiskManager::getNumPages() const {
+//     return numPages_;
+// }
 
 DiskManager::~DiskManager() {
     if (file_.is_open()) {

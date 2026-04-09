@@ -1,5 +1,3 @@
-# Mini Storage Engine — Next Steps
-
 ## ✅ Completed So Far
 
 - [x] DiskManager — read, write, allocate, deallocate pages

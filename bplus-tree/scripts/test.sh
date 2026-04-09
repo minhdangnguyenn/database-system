@@ -1,11 +1,6 @@
-#!/usr/bin/bash
-set -euo pipefail
+#! /bin/bash
 
-echo "==============================="
-echo "     Building LRU Cache..."
-echo "==============================="
-
-echo "Creating build folder..."
+echo "======= START BUILDING TEST ======"
 rm -rf build
 mkdir -p build
 cd build
@@ -20,4 +15,3 @@ echo "==============================="
 echo ""
 
 ./tests
-./dbms
