@@ -25,7 +25,9 @@ add_executable(tests
      ${SOURCES}
      ${CMAKE_SOURCE_DIR}/tests/include/test-lru.h
      ${CMAKE_SOURCE_DIR}/tests/include/test-buffer-pool.h
+     ${CMAKE_SOURCE_DIR}/tests/include/test-bplus-tree.h
      ${CMAKE_SOURCE_DIR}/tests/test-lru.cpp
      ${CMAKE_SOURCE_DIR}/tests/test-buffer-pool.cpp
+     ${CMAKE_SOURCE_DIR}/tests/test-bplus-tree.cpp
      ${CMAKE_SOURCE_DIR}/tests/main.cpp
 )

@@ -2,6 +2,11 @@
 #include <iostream>
 #include <ostream>
 
+BPlusTree::BPlusTree(BufferPool *bp, int order)
+    : buffer_pool(bp), order(order), root_page_id(-1) {
+  root_page_id = buffer_pool->create_new_page();
+}
+
 int BPlusTree::lookup(int key) {
   std::cout << "NOT IMPLEMENTED YET" << std::endl;
   return 0;
