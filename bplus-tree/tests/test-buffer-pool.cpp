@@ -295,16 +295,24 @@ void TestBufferPool::test_written_data_persists_after_eviction() {
     const int CAP = 2;
     BufferPool bp(CAP);
 
+    // write known data into page 0
     int page_id = bp.create_new_page();
     char* data = bp.fetch_page(page_id);
     assert(data != nullptr);
     snprintf(data, PAGE_SIZE, "persistent data");
+    bp.unpin_page(page_id, true);   // dirty and evictable
 
-    bp.unpin_page(page_id, true);
-
-    int other_a = bp.create_new_page();
+    // fill remaining free frames to exhaust the pool
+    int other_a = bp.create_new_page();  // takes last free frame
     assert(other_a >= 0);
+    bp.unpin_page(other_a, false);       // make it evictable too
 
+    // NOW pool is full and both frames are evictable
+    // this create MUST evict page_id (LRU) and flush it to disk
+    int other_b = bp.create_new_page();
+    assert(other_b >= 0);
+
+    // fetch page_id → must reload from disk
     char* data2 = bp.fetch_page(page_id);
     assert(data2 != nullptr);
     assert(strncmp(data2, "persistent data", 15) == 0);
