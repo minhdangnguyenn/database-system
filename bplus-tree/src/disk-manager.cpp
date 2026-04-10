@@ -17,9 +17,8 @@ DiskManager::DiskManager(const std::string& filename) : filename_(filename) {
 }
 
 int DiskManager::allocate_page() {
-    this->num_pages_ += 1;
     int new_page_id = this->num_pages_;
-
+    this->num_pages_ += 1;
     // create a page at empty byte in the file
     // wirte empty byte into the file
     char zero_buffer[PAGE_SIZE] = {};

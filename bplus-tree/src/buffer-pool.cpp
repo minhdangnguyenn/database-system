@@ -18,7 +18,7 @@ BufferPool::BufferPool(const int capacity) : capacity(capacity) {
 }
 
 int BufferPool::create_new_page() {
-    int page_id = this->disk->allocate_page();
+
     int frame_id = -1; // set a sentinel value for frame_id
     // frames is full
     if (this->free_frame_list.empty()) {
@@ -29,7 +29,7 @@ int BufferPool::create_new_page() {
                     << std::endl;
             return -1;
         }
-
+        int page_id = this->disk->allocate_page();
         // update the page id correspond to the old frame
         int old_page_id = this->frames[frame_id].get_pid();
 
@@ -43,8 +43,13 @@ int BufferPool::create_new_page() {
         // mapping new page_id with a free frame_id
         this->page_table[page_id] = frame_id;
         this->frames[frame_id].set_pid(page_id);
-    } else {
-        // if there are still free frames in the buffer pool
+        this->frames[frame_id].set_pin_count(1);
+        this->replacer->pin(frame_id);
+        return page_id;
+    }
+    else {
+        // if there are still free frames in the buffer pool -> no eviction needed
+        int page_id = this->disk->allocate_page();
         frame_id = this->free_frame_list.back();
         this->free_frame_list.pop_back();
 
@@ -52,13 +57,17 @@ int BufferPool::create_new_page() {
         this->page_table.insert({page_id, frame_id});
         this->frames[frame_id].set_dirty(false);
         this->frames[frame_id].set_pid(page_id);
+        this->frames[frame_id].set_pin_count(1);
+        this->replacer->pin(frame_id);
+        return page_id;
     }
-    this->replacer->pin(frame_id);
-    return page_id;
 }
 
 // this function is opposite to the create_new_page
 char* BufferPool::fetch_page(int page_id) {
+    if (this->page_table.empty()) {
+        return nullptr;
+    }
     // check if cache hit
     if (this->page_table.count(page_id)) {
         int frame_id = this->page_table[page_id];
