@@ -9,7 +9,7 @@
 class DiskManager {
 public:
   explicit DiskManager(const std::string &filename);
-  ~DiskManager();
+  ~DiskManager() = default;
 
   // Core I/O
   int allocate_page();

@@ -36,8 +36,8 @@ int BPlusTree::lookup(int key) {
 void BPlusTree::insert(int key, int page_id) {
 
   Node *current_node = this->root_node;
-  // Stage 1: walk down to correct leaf
 
+  // Stage 1: walk down to correct leaf
   std::stack<std::pair<Node *, int>> path = {};
   while (current_node->type == NodeType::INNER) {
     int child_idx = current_node->traverse(key);
@@ -45,8 +45,8 @@ void BPlusTree::insert(int key, int page_id) {
     path.push(std::pair(current_node, child_idx));
     current_node = current_node->children_nodes[child_idx];
   }
-  // traverse until the node is not inner anymore -> leaf node
 
+  // traverse until the node is not inner anymore -> leaf node
   // Stage 2: insert into leaf
   // insert at matching position i
   // lower boud find highest key that < int key params

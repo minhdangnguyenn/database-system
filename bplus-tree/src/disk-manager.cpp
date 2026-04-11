@@ -44,17 +44,3 @@ void DiskManager::read_page(int page_id, char *data) {
   file_.seekg(page_id * PAGE_SIZE);
   file_.read(data, PAGE_SIZE);
 }
-
-// void DiskManager::deallocatePage(int pageId) {
-//     freeList_.push(pageId);
-// }
-
-// int DiskManager::getNumPages() const {
-//     return numPages_;
-// }
-
-DiskManager::~DiskManager() {
-  if (file_.is_open()) {
-    file_.close();
-  }
-}
