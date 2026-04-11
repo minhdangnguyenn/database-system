@@ -25,8 +25,8 @@ bool LRU::evict(int &frame_id) {
 
 void LRU::pin(int frame_id) {
   if (candidates.count(frame_id)) {
-    // this frame is now in use — remove it from the LRU list so it cannot be
-    // evicted
+    // this frame is now in use — remove it from the LRU list so it cannot
+    // be evicted
     orders.erase(candidates[frame_id]);
     // erase from the candidate map
     candidates.erase(frame_id);

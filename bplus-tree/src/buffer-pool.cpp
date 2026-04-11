@@ -33,7 +33,8 @@ int BufferPool::create_new_page() {
     // update the page id correspond to the old frame
     int old_page_id = this->frames[frame_id].get_pid();
 
-    // check if the frame correspond with the old page in buffer is dirty first
+    // check if the frame correspond with the old page in buffer is dirty
+    // first
     if (this->frames[frame_id].get_dirty()) {
       this->flush_page(old_page_id);
     }
@@ -47,7 +48,7 @@ int BufferPool::create_new_page() {
     this->replacer->pin(frame_id);
     return page_id;
   } else {
-    // if there are still free frames in the buffer pool -> no eviction needed
+    // if there are still free frames in the buffer pool -> no eviction
     int page_id = this->disk->allocate_page();
     frame_id = this->free_frame_list.back();
     this->free_frame_list.pop_back();

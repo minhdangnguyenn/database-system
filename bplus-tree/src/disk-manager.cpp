@@ -11,7 +11,8 @@ DiskManager::DiskManager(const std::string &filename) : filename_(filename) {
     file_.open(filename, std::ios::out | std::ios::binary);
     char zeros[PAGE_SIZE] = {};
     file_.write(
-        zeros, PAGE_SIZE); // write to create page 0 instead of leaving it empty
+        zeros,
+        PAGE_SIZE); // write to create page 0 instead of leaving it empty
     file_.close();
     file_.open(filename, std::ios::in | std::ios::out | std::ios::binary);
   }
