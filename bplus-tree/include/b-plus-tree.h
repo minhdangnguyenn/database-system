@@ -11,7 +11,8 @@ struct Node {
   NodeType type;
   std::vector<Node *> children_nodes;
   std::vector<int> keys;
-  int value;
+  std::vector<int>
+      values; // the vector holds corresponded values with the key in node
   Node *next_node;
   Node(NodeType type = NodeType::LEAF) : type(type) {
     this->next_node = nullptr;
@@ -59,9 +60,9 @@ public:
 
 private:
   BufferPool *buffer_pool;
-  int root_page_id;
-  int inner_cap;
+  int node_cap;
   std::vector<Node *> nodes;
+  Node *root_node;
 };
 
 #endif // !B_TREE
