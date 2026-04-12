@@ -2,7 +2,6 @@
 #define DISK_MANAGER_H
 
 #include <fstream>
-#include <list>
 #include <stack>
 #include <string>
 
