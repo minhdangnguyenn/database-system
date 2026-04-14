@@ -159,7 +159,6 @@ void BPlusTree::insert(int key, int page_id) {
 
 void BPlusTree::insert_into_leaf(char *page, int key, int value) {
 
-  // std::cout << " NOT IMPLEMENTED " << std::endl;
   int num_keys = this->read_int(page, 4);
 
   // find the insert position
@@ -179,17 +178,9 @@ void BPlusTree::insert_into_leaf(char *page, int key, int value) {
   // need to loop from right to left and shift from left to right
   int j = num_keys - 1;
 
-  // loop 1: shift key to the right
-  while (j >= insert_pos) {
-    int k = read_int(page, 12 + j * 4);
-    this->write_int(page, 12 + (j + 1) * 4, k);
-    j = j - 1;
-  }
-
-  // loop 2: relocate all values
+  // loop 1: relocate all values
   int old_value_start = 12 + num_keys * 4;
   int new_value_start = 12 + (num_keys + 1) * 4;
-  j = num_keys - 1;
 
   while (j >= 0) {
     int v = this->read_int(page, old_value_start + j * 4);
@@ -199,6 +190,15 @@ void BPlusTree::insert_into_leaf(char *page, int key, int value) {
       this->write_int(page, new_value_start + j * 4, v);
     }
 
+    j = j - 1;
+  }
+
+  j = num_keys - 1;
+
+  // loop 2: shift key to the right
+  while (j >= insert_pos) {
+    int k = read_int(page, 12 + j * 4);
+    this->write_int(page, 12 + (j + 1) * 4, k);
     j = j - 1;
   }
 
