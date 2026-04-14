@@ -151,7 +151,8 @@ void BPlusTree::insert(int key, int page_id) {
         this->buffer_pool->unpin_page(leaf_page_id, true);
     } else {
         // split leaf here
-        std::cout << "SPLIT LEAF NOT IMPLEMENTED YET !" << std::endl;
+        // std::cout << "SPLIT LEAF NOT IMPLEMENTED YET !" << std::endl;
+        this->split_leaf(leaf_page_id, key, page_id, parent_stack);
         this->buffer_pool->unpin_page(leaf_page_id, true);
     }
 }
@@ -209,12 +210,52 @@ void BPlusTree::insert_into_leaf(char *page, int key, int value) {
     this->write_int(page, new_value_start + insert_pos * 4, value);
 }
 
-void BPlusTree::split_leaf(int leaf_page_id, std::stack<int> parent_stack) {
+void BPlusTree::split_leaf(int leaf_page_id, int key, int value,
+                           std::stack<int> parent_stack) {
 
     // std::cout << "NOT IMPLEMENTED !" << std::endl;
+    int max_keys = (PAGE_SIZE - 12) / 8;
     char *page = this->buffer_pool->fetch_page(leaf_page_id);
     int num_keys = this->read_int(page, 4);
     int old_next = this->read_int(page, 8);
+
+    int temp_keys[max_keys + 1];
+    int temp_values[max_keys + 1];
+
+    // read existing keys and values into temp arrays
+    // leave a gap at the correct position for the new key
+
+    int insert_pos = 0;
+    while (insert_pos < num_keys) {
+        int k = this->read_int(page, 12 + insert_pos * 4);
+
+        // find the insert position i
+        if (k > key) {
+            break;
+        }
+
+        insert_pos++;
+    }
+
+    int j = 0;
+    for (int i = 0; i <= max_keys; i++) {
+        if (i == insert_pos) {
+            temp_keys[i] = key;
+            temp_values[i] = value;
+        } else {
+            temp_keys[i] = this->read_int(page, 12 + j * 4);
+            temp_values[i] = this->read_int(page, 12 + num_keys * 4 + j * 4);
+            j++;
+        }
+    }
+
+    // step 3: split point
+    int mid = (max_keys + 1) / 2;
+    // TODO
+    // step 4: create and fill the right leaf
+    // step 5: rewrite the left leaf
+    // step 6: push mid key point to inner
+    // step 7: unpin, call parent
 }
 
 void BPlusTree::remove(int key) { std::cout << "NOT IMPLEMENTED" << std::endl; }
