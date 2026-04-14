@@ -115,7 +115,6 @@ std::tuple<int, char *, std::stack<int>> BPlusTree::find_leaf(int key) {
 
 void BPlusTree::insert(int key, int page_id) {
 
-  // std::cout << "NOT IMPLEMENTED" << std::endl;
   // find down to the leaf
   std::tuple<int, char *, std::stack<int>> leaf_tuple = this->find_leaf(key);
   int leaf_page_id = std::get<0>(leaf_tuple);
