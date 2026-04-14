@@ -10,37 +10,37 @@
 enum NODETYPE { LEAF, INNER };
 
 class BPlusTree : public IndexStrategy {
-public:
-  BPlusTree(BufferPool *bp);
-  ~BPlusTree() = default;
+  public:
+    BPlusTree(BufferPool *bp);
+    ~BPlusTree() = default;
 
-  int get_root_page_id() { return this->root_page_id; }
+    int get_root_page_id() { return this->root_page_id; }
 
-  // return the page_id correspond with key value
-  int lookup(int key) override;
+    // return the page_id correspond with key value
+    int lookup(int key) override;
 
-  void insert(int key, int page_id) override;
-  void remove(int key) override;
-  void range_scan(int low, int high, std::vector<int> &results) override;
+    void insert(int key, int page_id) override;
+    void remove(int key) override;
+    void range_scan(int low, int high, std::vector<int> &results) override;
 
-  // helper function to cast from raw char* to int in offset at page
-  int read_int(char *page, int offset);
+    // helper function to cast from raw char* to int in offset at page
+    int read_int(char *page, int offset);
 
-  void write_int(char *page, int offset, int value);
+    void write_int(char *page, int offset, int value);
 
-  std::tuple<int, char *, std::stack<int>> find_leaf(int key);
-  bool leaf_has_room(char *page);
-  void insert_into_leaf(char *page, int key, int value);
-  void insert_into_parent(char *page, int key, int value);
+    std::tuple<int, char *, std::stack<int>> find_leaf(int key);
+    bool leaf_has_room(char *page);
+    void insert_into_leaf(char *page, int key, int value);
+    void insert_into_parent(char *page, int key, int value);
 
-  void split_leaf(int leaf_page_id, std::stack<int> parent_stack);
-  void split_inner(int page_id, std::pair<int, std::stack<int>>);
+    void split_leaf(int leaf_page_id, std::stack<int> parent_stack);
+    void split_inner(int page_id, std::pair<int, std::stack<int>>);
 
-  int binary_search(char *page, int nums_keys, int key);
+    int binary_search(char *page, int nums_keys, int key);
 
-private:
-  BufferPool *buffer_pool;
-  int root_page_id;
+  private:
+    BufferPool *buffer_pool;
+    int root_page_id;
 };
 
 #endif // !B_TREE

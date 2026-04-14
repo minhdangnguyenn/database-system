@@ -370,11 +370,11 @@ void TestBPlusTree::test_lookup_single_key_raw_page() {
     BPlusTree tree(&bp);
 
     char *page = bp.fetch_page(tree.get_root_page_id());
-    write_int(page, 0,  0);    // type = LEAF
-    write_int(page, 4,  1);    // num_keys = 1
-    write_int(page, 8, -1);    // next_page_id = none
-    write_int(page, 12, 42);   // keys[0] = 42
-    write_int(page, 16, 99);   // values[0] = 99
+    write_int(page, 0, 0);   // type = LEAF
+    write_int(page, 4, 1);   // num_keys = 1
+    write_int(page, 8, -1);  // next_page_id = none
+    write_int(page, 12, 42); // keys[0] = 42
+    write_int(page, 16, 99); // values[0] = 99
 
     assert(tree.lookup(42) == 99);
     assert(tree.lookup(41) == -1);
@@ -392,8 +392,8 @@ void TestBPlusTree::test_lookup_multiple_keys_raw_page() {
     BPlusTree tree(&bp);
 
     char *page = bp.fetch_page(tree.get_root_page_id());
-    write_int(page, 0,  0);    // type = LEAF
-    write_int(page, 4,  3);    // num_keys = 3
+    write_int(page, 0, 0); // type = LEAF
+    write_int(page, 4, 3); // num_keys = 3
     write_int(page, 8, -1);
     // keys at [12], [16], [20]
     write_int(page, 12, 10);
@@ -423,26 +423,26 @@ void TestBPlusTree::test_lookup_inner_to_leaf_raw_page() {
 
     // inner root: keys=[20], children=[1, 2]
     char *root = bp.fetch_page(0);
-    write_int(root, 0,  1);    // type = INNER
-    write_int(root, 4,  1);    // num_keys = 1
+    write_int(root, 0, 1); // type = INNER
+    write_int(root, 4, 1); // num_keys = 1
     write_int(root, 8, -1);
-    write_int(root, 12, 20);   // keys[0] = 20
+    write_int(root, 12, 20); // keys[0] = 20
     // children start at 12 + 1*4 = 16
-    write_int(root, 16, 1);    // children[0] = page 1
-    write_int(root, 20, 2);    // children[1] = page 2
+    write_int(root, 16, 1); // children[0] = page 1
+    write_int(root, 20, 2); // children[1] = page 2
 
     // left leaf: keys=[10], values=[100]
     char *left = bp.fetch_page(1);
-    write_int(left, 0,  0);
-    write_int(left, 4,  1);
-    write_int(left, 8,  2);    // next_page_id = 2
+    write_int(left, 0, 0);
+    write_int(left, 4, 1);
+    write_int(left, 8, 2); // next_page_id = 2
     write_int(left, 12, 10);
     write_int(left, 16, 100);
 
     // right leaf: keys=[20, 30], values=[200, 300]
     char *right = bp.fetch_page(2);
-    write_int(right, 0,  0);
-    write_int(right, 4,  2);
+    write_int(right, 0, 0);
+    write_int(right, 4, 2);
     write_int(right, 8, -1);
     write_int(right, 12, 20);
     write_int(right, 16, 30);
@@ -467,8 +467,8 @@ void TestBPlusTree::test_lookup_key_below_minimum() {
     BPlusTree tree(&bp);
 
     char *page = bp.fetch_page(tree.get_root_page_id());
-    write_int(page, 0,  0);
-    write_int(page, 4,  2);
+    write_int(page, 0, 0);
+    write_int(page, 4, 2);
     write_int(page, 8, -1);
     write_int(page, 12, 10);
     write_int(page, 16, 20);
@@ -489,15 +489,15 @@ void TestBPlusTree::test_lookup_key_above_maximum() {
     BPlusTree tree(&bp);
 
     char *page = bp.fetch_page(tree.get_root_page_id());
-    write_int(page, 0,  0);
-    write_int(page, 4,  2);
+    write_int(page, 0, 0);
+    write_int(page, 4, 2);
     write_int(page, 8, -1);
     write_int(page, 12, 10);
     write_int(page, 16, 20);
     write_int(page, 20, 100);
     write_int(page, 24, 200);
 
-    assert(tree.lookup(21)      == -1);
+    assert(tree.lookup(21) == -1);
     assert(tree.lookup(INT_MAX) == -1);
 
     std::remove("mydb.db");
@@ -511,8 +511,8 @@ void TestBPlusTree::test_lookup_idempotent() {
     BPlusTree tree(&bp);
 
     char *page = bp.fetch_page(tree.get_root_page_id());
-    write_int(page, 0,  0);
-    write_int(page, 4,  1);
+    write_int(page, 0, 0);
+    write_int(page, 4, 1);
     write_int(page, 8, -1);
     write_int(page, 12, 10);
     write_int(page, 16, 100);
