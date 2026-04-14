@@ -28,7 +28,7 @@ public:
 
   void write_int(char *page, int offset, int value);
 
-  std::pair<int, std::stack<int>> find_leaf(int key);
+  std::tuple<int, char *, std::stack<int>> find_leaf(int key);
   bool leaf_has_room(char *page);
   void insert_into_leaf(char *page, int key, int value);
 
