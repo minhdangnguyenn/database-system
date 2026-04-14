@@ -176,19 +176,31 @@ void BPlusTree::insert_into_leaf(char *page, int key, int value) {
     insert_pos++;
   }
 
-  int new_value_start = 12 + (num_keys + 1) * 4;
-
   // shift key > insert key to the right to insert new key
   // need to loop from right to left and shift from left to right
   int j = num_keys - 1;
+
+  // loop 1: shift key to the right
   while (j >= insert_pos) {
-    int prev_key = this->read_int(page, 12 + j * 4);
-    this->write_int(page, 12 + (j + 1) * 4, prev_key);
+    int k = read_int(page, 12 + j * 4);
+    this->write_int(page, 12 + (j + 1) * 4, k);
+    j = j - 1;
+  }
 
-    int prev_value = this->read_int(page, 12 + num_keys * 4 + j * 4);
-    this->write_int(page, new_value_start + (j + 1) * 4, prev_value);
+  // loop 2: relocate all values
+  int old_value_start = 12 + num_keys * 4;
+  int new_value_start = 12 + (num_keys + 1) * 4;
+  j = num_keys - 1;
 
-    j--;
+  while (j >= 0) {
+    int v = this->read_int(page, old_value_start + j * 4);
+    if (j >= insert_pos) {
+      this->write_int(page, new_value_start + (j + 1) * 4, v);
+    } else {
+      this->write_int(page, new_value_start + j * 4, v);
+    }
+
+    j = j - 1;
   }
 
   this->write_int(page, 12 + insert_pos * 4, key);
