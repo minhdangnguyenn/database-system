@@ -1,1 +1,0 @@
-python3 benchmark/plot_benchmark.py
