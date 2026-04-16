@@ -352,21 +352,22 @@ void BPlusTree::split_inner(int page_id,
                             std::pair<int, std::stack<int>> parent_stack) {
     char *inner_page = this->buffer_pool->fetch_page(page_id);
     int num_keys = this->read_int(inner_page, 4);
+    int original_num_keys = num_keys;
 
-    int temp_keys[num_keys];
-    int temp_children[num_keys + 1];
+    int original_keys[num_keys];
+    int original_children[num_keys + 1];
 
     for (int i = 0; i < num_keys; i++) {
-        temp_keys[i] = this->read_int(inner_page, 12 + i * 8);
-        temp_children[i] = this->read_int(inner_page, 8 + i * 8);
+        original_keys[i] = this->read_int(inner_page, 12 + i * 8);
+        original_children[i] = this->read_int(inner_page, 8 + i * 8);
     }
 
     // last member of children
-    temp_children[num_keys] = this->read_int(inner_page, 8 + num_keys * 8);
+    original_children[num_keys] = this->read_int(inner_page, 8 + num_keys * 8);
 
     // find split point
     int mid = num_keys / 2;
-    int promote_key = temp_keys[mid];
+    int promote_key = original_keys[mid];
 
     // update into the left child node
     // 0 -> mid - 1 go to left child
@@ -374,15 +375,93 @@ void BPlusTree::split_inner(int page_id,
     // temp_keys[mid] goes up
     int left_num_keys = mid;
     for (int i = 0; i < mid; i++) {
-        this->write_int(inner_page, 8 + i * 8, temp_children[i]);
-        this->write_int(inner_page, 12 + i * 8, temp_keys[i]);
+        this->write_int(inner_page, 8 + i * 8, original_children[i]);
+        this->write_int(inner_page, 12 + i * 8, original_keys[i]);
     }
-    this->write_int(inner_page, 8 + mid * 8, temp_children[mid]);
+    this->write_int(inner_page, 8 + mid * 8, original_children[mid]);
     num_keys = mid;
     this->write_int(inner_page, 4, mid);
 
     // create right inner node
-    // TODO
+    int new_right_inner_id = this->buffer_pool->create_new_page();
+    char *new_right_inner_data =
+        this->buffer_pool->fetch_page(new_right_inner_id);
+
+    this->write_int(new_right_inner_data, 0, 0);
+    int right_num_key = original_num_keys - mid - 1;
+    for (int i = 0; i < right_num_key; i++) {
+        this->write_int(new_right_inner_data, 8 + i * 8,
+                        original_children[mid + 1 + i]);
+        this->write_int(new_right_inner_data, 12 + i * 8,
+                        original_keys[mid + 1 + i]);
+    }
+
+    // write the last key
+    this->write_int(new_right_inner_data, 8 + right_num_key * 8,
+                    original_children[original_num_keys]);
+    this->write_int(new_right_inner_data, 4, right_num_key);
+
+    // check if parent is overflow
+    if (parent_stack.second.empty()) {
+        // create new root with onn key promote key
+        int new_root_id = this->buffer_pool->create_new_page();
+        // left child is page_id, right child is new_right_inner_id
+        char *root_data = this->buffer_pool->fetch_page(new_root_id);
+
+        this->write_int(root_data, 0, 0); // write type inner for inner node
+        this->write_int(root_data, 4, 1); // write nums_key = 1
+        this->write_int(root_data, 8, page_id);
+        this->write_int(root_data, 12, promote_key);
+        this->write_int(root_data, 16, new_right_inner_id);
+
+        this->root_page_id = new_root_id;
+        this->buffer_pool->unpin_page(new_root_id, true);
+    } else {
+        // pop up the grandparent from parent stack
+        int grandparent_id = parent_stack.second.top();
+        parent_stack.second.pop();
+        // insert promote_key and new_right_inner_id into it
+        char *grandparent_data = this->buffer_pool->fetch_page(grandparent_id);
+        int grandparent_num_keys = this->read_int(grandparent_data, 4);
+
+        // find the suitable position to insert new key
+        int insert_pos = -1;
+        for (int i = 0; i < grandparent_num_keys; i++) {
+            int k = this->read_int(grandparent_data, 12 + i * 8);
+            if (k > promote_key) {
+                insert_pos = i;
+                break;
+            }
+        }
+        if (insert_pos == -1) {
+            insert_pos = grandparent_num_keys;
+        }
+        // check if grandparent overflow, if yes, call recursive
+        for (int i = grandparent_num_keys; i > insert_pos; i--) {
+            int copy_key = this->read_int(grandparent_data, 12 + (i - 1) * 8);
+            int copy_child = this->read_int(grandparent_data, 8 + i * 8);
+
+            this->write_int(grandparent_data, 12 + i * 8, copy_key);
+            this->write_int(grandparent_data, 8 + (i + 1) * 8, copy_child);
+        }
+
+        // insert into parent data
+        this->write_int(grandparent_data, 12 + insert_pos * 8, promote_key);
+        this->write_int(grandparent_data, 4, grandparent_num_keys + 1);
+        this->write_int(grandparent_data, 8 + (insert_pos + 1) * 8,
+                        new_right_inner_id);
+
+        // check if parent is overflow
+        int inner_max_keys = ((PAGE_SIZE - 8) / 4 - 1) / 2;
+        if (grandparent_num_keys + 1 > inner_max_keys) {
+            this->split_inner(grandparent_id,
+                              std::pair(grandparent_id, parent_stack.second));
+        } else {
+            this->buffer_pool->unpin_page(grandparent_id, true);
+        }
+    }
+    this->buffer_pool->unpin_page(page_id, true);
+    this->buffer_pool->unpin_page(new_right_inner_id, true);
 }
 
 void BPlusTree::remove(int key) { std::cout << "NOT IMPLEMENTED" << std::endl; }
