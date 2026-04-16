@@ -43,7 +43,7 @@ plt.rcParams.update(
 # colorblind-friendly pair: blue for O1, orange for NAIVE
 COLORS = {"O1": "#4C72B0", "NAIVE": "#DD8452"}
 LABELS = {"O1": "O(1) Optimised", "NAIVE": "Naïve"}
-FILE = "../build/benchmark_results.csv"
+FILE = "./build/benchmark_results.csv"
 
 # ── load data ───────────────────────────────────────────────────────────────
 csv_path = sys.argv[1] if len(sys.argv) > 1 else FILE

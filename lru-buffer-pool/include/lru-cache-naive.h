@@ -1,20 +1,22 @@
-#ifndef LRU_CACHE_NAIVE_H
-#define LRU_CACHE_NAIVE_H
+#ifndef LRU_REPLACER_NAIVE_H
+#define LRU_REPLACER_NAIVE_H
 
 #include "page.h"
-#include <utility>
+#include "replacer.h"
 #include <vector>
 
-class LRUCacheNaive {
-private:
-  int capacity;
-  // vector of {key, value} — order = recency (front = MRU, back = LRU)
-  std::vector<Page> cache;
+// Naive LRU replacer — O(n) pin/unpin, for benchmarking against LRUReplacer
+class LRUReplacerNaive : public Replacer {
+  public:
+    LRUReplacerNaive() = default;
 
-public:
-  LRUCacheNaive(int capacity);
-  int get(int key);
-  void put(int key, int value);
+    void pin(Page *page) override;
+    void unpin(Page *page) override;
+    Page *evict() override;
+
+  private:
+    // front = MRU, back = LRU — only unpinned pages
+    std::vector<Page *> cache;
 };
 
-#endif
+#endif // LRU_REPLACER_NAIVE_H

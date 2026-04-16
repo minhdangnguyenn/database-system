@@ -1,39 +1,31 @@
 #include "../include/lru-cache-naive.h"
 
-LRUCacheNaive::LRUCacheNaive(int capacity) { this->capacity = capacity; }
-
-int LRUCacheNaive::get(int key) {
-  // Loop through to find the key — O(n)
-  for (int i = 0; i < cache.size(); i++) {
-    if (cache[i].getKey() == key) {
-      int value = cache[i].getValue();
-
-      // Move to front (MRU) — O(n)
-      cache.erase(cache.begin() + i);
-      cache.insert(cache.begin(), Page(key, value));
-
-      return value;
+// O(n) — linear scan to remove from eviction candidates
+void LRUReplacerNaive::pin(Page *page) {
+    for (int i = 0; i < (int)cache.size(); i++) {
+        if (cache[i]->getKey() == page->getKey()) {
+            cache.erase(cache.begin() + i);
+            return;
+        }
     }
-  }
-  return -1; // not found
 }
 
-void LRUCacheNaive::put(int key, int value) {
-  // Check if key already exists — O(n)
-  for (int i = 0; i < cache.size(); i++) {
-    if (cache[i].getKey() == key) {
-      // Update value and move to front
-      cache.erase(cache.begin() + i);
-      cache.insert(cache.begin(), Page(key, value));
-      return;
+// O(n) — linear scan to avoid duplicates, then insert at front
+void LRUReplacerNaive::unpin(Page *page) {
+    for (int i = 0; i < (int)cache.size(); i++) {
+        if (cache[i]->getKey() == page->getKey()) {
+            return; // already a candidate
+        }
     }
-  }
+    cache.insert(cache.begin(), page); // MRU at front
+}
 
-  // If cache is full — evict LRU (last element)
-  if (cache.size() == capacity) {
-    cache.pop_back(); // evict LRU — O(1)
-  }
+// O(1) — LRU is always at the back
+Page *LRUReplacerNaive::evict() {
+    if (cache.empty())
+        return nullptr;
 
-  // Add new page to front
-  cache.insert(cache.begin(), Page(key, value));
+    Page *victim = cache.back();
+    cache.pop_back();
+    return victim;
 }
