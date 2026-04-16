@@ -518,5 +518,41 @@ void BPlusTree::remove(int key) {
 
 void BPlusTree::range_scan(int low, int high, std::vector<int> &results) {
 
-    std::cout << "NOT IMPLEMENTED" << std::endl;
+    std::tuple<int, char *, std::stack<int>> low_leaf = this->find_leaf(low);
+    int low_leaf_pid = std::get<0>(low_leaf);
+
+    char *low_leaf_data = std::get<1>(low_leaf);
+    int low_leaf_num_keys = this->read_int(low_leaf_data, 4);
+    int current_pid = low_leaf_pid;
+    char *current_data = low_leaf_data;
+
+    while (true) {
+        int num_keys = this->read_int(current_data, 4);
+        for (int i = 0; i < num_keys; i++) {
+            int key = this->read_int(current_data, 12 + i * 4);
+
+            if (low <= key && key <= high) {
+                int value =
+                    this->read_int(current_data, 12 + num_keys * 4 + i * 4);
+
+                results.push_back(
+                    this->read_int(current_data, 12 + num_keys * 4 + i * 4));
+            }
+            if (key > high) {
+                this->buffer_pool->unpin_page(current_pid, false);
+                return;
+            }
+        }
+
+        int next_pid = this->read_int(current_data, 8);
+
+        this->buffer_pool->unpin_page(current_pid, false);
+
+        if (next_pid == -1) {
+            return;
+        }
+
+        current_pid = next_pid;
+        current_data = this->buffer_pool->fetch_page(current_pid);
+    }
 }
