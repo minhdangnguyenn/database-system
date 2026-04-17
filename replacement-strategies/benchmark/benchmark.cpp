@@ -1,8 +1,8 @@
 #include "../include/buffer-pool.h"
 #include "../include/fifo-replacer.h"
+#include "../include/lfu-replacer.h"
 #include "../include/lru-cache-naive.h"
 #include "../include/lru-replacer.h"
-#include "../include/random-replacer.h"
 
 #include <chrono>
 #include <fstream>
@@ -88,7 +88,7 @@ std::vector<Operation> build_hotspot_workload(int operations, int key_range,
     for (int i = 0; i < operations; i++) {
         Operation op;
         op.is_get = (op_dist(gen) == 0);
-        // 80% of accesses go to 20% of keys (hot zone)
+        // 80% of accesses go to 20% of keys (I call it hot zone)
         op.key = (prob(gen) < hot_ratio) ? hot_dist(gen) : cold_dist(gen);
         op.value = value_dist(gen);
         trace.push_back(op);
@@ -109,7 +109,7 @@ void run_once(const Workload &workload, int capacity, int run,
         if (op.is_get) {
             int value = cache.get(op.key);
             if (value != -1 && strategy.touch_on_get) {
-                // Mark read-hit as recent for LRU-based strategies.
+                // mark read-hit as recent for LRU-based strategies.
                 cache.pin(op.key, value);
                 unpin_if_needed(cache, op.key);
             }
@@ -201,7 +201,7 @@ int main() {
         {"NAIVE", true, []() { return std::make_unique<LRUReplacerNaive>(); }},
         {"LRU", true, []() { return std::make_unique<LRUReplacer>(); }},
         {"FIFO", false, []() { return std::make_unique<FIFOReplacer>(); }},
-        {"RANDOM", false, []() { return std::make_unique<RandomReplacer>(); }},
+        {"LFU", true, []() { return std::make_unique<LFUReplacer>(); }},
     };
 
     for (const auto &workload : workloads) {

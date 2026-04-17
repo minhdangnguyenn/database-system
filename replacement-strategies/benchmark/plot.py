@@ -8,12 +8,13 @@ import pandas as pd
 
 plt.style.use("seaborn-v0_8-whitegrid")
 
-STRATEGY_ORDER = ["NAIVE", "LRU", "FIFO", "RANDOM"]
+
+STRATEGY_ORDER = ["NAIVE", "LRU", "FIFO", "LFU"]
 COLORS = {
     "NAIVE": "#DD8452",
     "LRU": "#4C72B0",
     "FIFO": "#55A868",
-    "RANDOM": "#C44E52",
+    "LFU": "#C44E52",
 }
 
 
