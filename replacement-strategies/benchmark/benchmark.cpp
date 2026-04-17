@@ -1,6 +1,5 @@
 #include "../include/buffer-pool.h"
 #include "../include/fifo-replacer.h"
-#include "../include/lfu-replacer.h"
 #include "../include/lru-cache-naive.h"
 #include "../include/lru-replacer.h"
 
@@ -201,7 +200,6 @@ int main() {
         {"NAIVE", true, []() { return std::make_unique<LRUReplacerNaive>(); }},
         {"LRU", true, []() { return std::make_unique<LRUReplacer>(); }},
         {"FIFO", false, []() { return std::make_unique<FIFOReplacer>(); }},
-        {"LFU", true, []() { return std::make_unique<LFUReplacer>(); }},
     };
 
     for (const auto &workload : workloads) {
