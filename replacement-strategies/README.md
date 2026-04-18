@@ -4,11 +4,11 @@ A **Buffer Pool** implemented in C++ using a **Doubly Linked List** + **Hash Map
 
 ### Benchmark time with capacity -- Compare between Naive LRU and optimized LRU
 
-![benchmark lru time vs capacity](./benchmark/benchmark_time_vs_capacity.png)
+![benchmark lru time vs capacity](./benchmark_time_vs_capacity.png)
 
 ### Benchmark time in ms -- Compare between Naive LRU and optimized LRU
 
-![benchmark lru time vs capacity](./benchmark/benchmark_time_ms.png)
+![benchmark lru time vs capacity](./benchmark_time_ms.png)
 
 ### More benchmark results in
 
