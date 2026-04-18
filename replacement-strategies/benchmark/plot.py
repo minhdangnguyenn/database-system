@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-plt.style.use("seaborn-v0_8-whitegrid")
+plt.style.use("seaborn-v0_8-white")
 
 
 STRATEGY_ORDER = ["NAIVE", "LRU", "FIFO"]
