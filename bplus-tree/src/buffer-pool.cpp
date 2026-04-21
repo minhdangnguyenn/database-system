@@ -1,6 +1,7 @@
 #include "../include/buffer-pool.h"
 #include "../include/disk-manager.h"
 #include "../include/lru.h"
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -43,6 +44,8 @@ int BufferPool::create_new_page() {
 
         // mapping new page_id with a free frame_id
         this->page_table[page_id] = frame_id;
+        std::memset(this->frames[frame_id].get_data(), 0, PAGE_SIZE);
+        this->frames[frame_id].set_dirty(false);
         this->frames[frame_id].set_pid(page_id);
         this->frames[frame_id].set_pin_count(1);
         this->replacer->pin(frame_id);
@@ -55,6 +58,7 @@ int BufferPool::create_new_page() {
 
         // match the frame in the free_frame with the new created page
         this->page_table.insert({page_id, frame_id});
+        std::memset(this->frames[frame_id].get_data(), 0, PAGE_SIZE);
         this->frames[frame_id].set_dirty(false);
         this->frames[frame_id].set_pid(page_id);
         this->frames[frame_id].set_pin_count(1);
@@ -65,13 +69,18 @@ int BufferPool::create_new_page() {
 
 // this function is opposite to the create_new_page
 char *BufferPool::fetch_page(int page_id) {
-    // no page exist
-    if (this->page_table.empty()) {
-        return nullptr;
+    if (!this->disk->is_valid_page_id(page_id)) {
+        if (page_id < 0 || page_id >= this->capacity) {
+            return nullptr;
+        }
+        this->disk->ensure_page_exists(page_id);
     }
+
     // check if cache hit
     if (this->page_table.count(page_id)) {
         int frame_id = this->page_table[page_id];
+        this->frames[frame_id].set_pin_count(this->frames[frame_id].get_pin_count() +
+                                             1);
         this->replacer->pin(frame_id);
         return this->frames[frame_id].get_data();
     }
@@ -82,6 +91,7 @@ char *BufferPool::fetch_page(int page_id) {
         Frame *frame = &this->frames[frame_id];
         frame->set_pid(page_id);
         frame->set_dirty(false);
+        frame->set_pin_count(1);
         this->free_frame_list.pop_back();
 
         // write the new page to disk
@@ -115,6 +125,7 @@ char *BufferPool::fetch_page(int page_id) {
         Frame *new_frame = &this->frames[frame_id];
         new_frame->set_pid(page_id);
         new_frame->set_dirty(false);
+        new_frame->set_pin_count(1);
 
         std::cout << std::to_string(frame_id) +
                          " has been successfully evicted !"
@@ -167,6 +178,12 @@ void BufferPool::unpin_page(int page_id, bool is_dirty) {
 }
 
 BufferPool::~BufferPool() {
+    for (auto const &[page_id, frame_id] : this->page_table) {
+        (void)frame_id;
+        if (this->frames[this->page_table[page_id]].get_dirty()) {
+            this->flush_page(page_id);
+        }
+    }
     this->free_frame_list.clear();
     this->page_table.clear();
     delete this->disk;

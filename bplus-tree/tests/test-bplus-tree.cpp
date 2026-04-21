@@ -4,6 +4,7 @@
 #include <cassert>
 #include <climits>
 #include <iostream>
+#include <random>
 #include <vector>
 
 // helper identical to your existing code
@@ -518,7 +519,8 @@ void TestBPlusTree::test_insert_random_stress() {
     std::vector<int> keys;
     for (int i = 1; i <= 100; i++)
         keys.push_back(i);
-    std::random_shuffle(keys.begin(), keys.end());
+    std::mt19937 rng(42);
+    std::shuffle(keys.begin(), keys.end(), rng);
 
     for (int k : keys)
         tree.insert(k, k * 5);
@@ -558,7 +560,8 @@ void TestBPlusTree::test_delete_random_stress() {
     std::vector<int> keys;
     for (int i = 1; i <= N; i++)
         keys.push_back(i);
-    std::random_shuffle(keys.begin(), keys.end());
+    std::mt19937 rng(42);
+    std::shuffle(keys.begin(), keys.end(), rng);
 
     for (int i = 0; i < 60; i++)
         tree.remove(keys[i]);

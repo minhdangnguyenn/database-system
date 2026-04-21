@@ -4,6 +4,7 @@
 #include "./buffer-pool.h"
 #include "./index-strategy.h"
 #include <stack>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -42,7 +43,8 @@ class BPlusTree : public IndexStrategy {
     std::tuple<int, char *, std::stack<int>> find_leaf(int key);
     bool leaf_has_room(char *page);
     void insert_into_leaf(char *page, int key, int value);
-    void insert_into_parent(char *page, int key, int value);
+    void insert_into_parent(int left_page_id, int key, int right_page_id,
+                            std::stack<int> parent_stack);
 
     void split_leaf(int leaf_page_id, int key, int value,
                     std::stack<int> parent_stack);

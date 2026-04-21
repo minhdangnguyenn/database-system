@@ -12,6 +12,8 @@ class DiskManager {
 
     // Core I/O
     int allocate_page();
+    bool is_valid_page_id(int page_id) const;
+    void ensure_page_exists(int page_id);
 
     void write_page(int page_id, const char *data); // write PAGE_SIZE bytes
     void read_page(int page_id, char *data);

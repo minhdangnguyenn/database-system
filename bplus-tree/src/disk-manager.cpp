@@ -16,6 +16,12 @@ DiskManager::DiskManager(const std::string &filename) : filename_(filename) {
         file_.close();
         file_.open(filename, std::ios::in | std::ios::out | std::ios::binary);
     }
+
+    file_.clear();
+    file_.seekg(0, std::ios::end);
+    std::streamoff file_size = file_.tellg();
+    this->num_pages_ = static_cast<int>(file_size / PAGE_SIZE);
+    file_.seekg(0, std::ios::beg);
 }
 
 int DiskManager::allocate_page() {
@@ -29,6 +35,16 @@ int DiskManager::allocate_page() {
     // return the new page_id correspond
     return new_page_id;
 };
+
+bool DiskManager::is_valid_page_id(int page_id) const {
+    return page_id >= 0 && page_id < this->num_pages_;
+}
+
+void DiskManager::ensure_page_exists(int page_id) {
+    while (page_id >= this->num_pages_) {
+        allocate_page();
+    }
+}
 
 void DiskManager::write_page(int page_id, const char *data) {
     if (page_id >= this->num_pages_ || page_id < 0) {
