@@ -32,4 +32,12 @@ impl Wal {
         self.file.flush()?;
         Ok(())
     }
+
+    pub fn replay(&mut self) -> std::io::Result<()> {
+        self.file.seek(SeekFrom::Start(0))?;
+        let mut data = Vec::new();
+        self.file.read_to_end(&mut data)?;
+
+        Ok(())
+    }
 }
