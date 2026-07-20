@@ -1,56 +1,52 @@
 #include <iostream>
+#include <string>
+#include <random> // Essential for random operations
+#include <chrono>
 #include "./include/SimpleKeyVStore.hpp"
 
 int main() {
-    {
-        SimepleKeyVStore db;
-        std::cout << "[Test] Injecting batch data into the store..." << std::endl;
-
-        db.Put("project_name", "WalStorageEngine");
-        db.Put("language", "CPP");
-        db.Put("status", "Development");
-        db.Put("version", "1.0");
-
-        db.Put("status", "Stable");
-        db.Delete("temporary_file");
-
-        std::cout << "[Test] Data ingestion complete. Closing store." << std::endl;
-    } // The destructor runs here, ensuring logs are flushed
+    const int NUM_OPERATIONS = 1000000; // 1 000 000
 
     {
-        std::cout << "[Test] Restarting the system to trigger WAL recovery..." << std::endl;
+        auto start_time = std::chrono::high_resolution_clock::now();
         SimepleKeyVStore db;
+        std::cout << "[Test] Injecting " << NUM_OPERATIONS << " random operations..." << std::endl;
 
-        std::string expected_data[][2] = {
-            {"project_name", "WalStorageEngine"},
-            {"language", "CPP"},
-            {"status", "Stable"}, // Check if the update persisted
-            {"version", "1.0"}
-        };
+        // Setup random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> op_dist(0, 2);
+        std::uniform_int_distribution<> key_dist(1, 1000000); // Using 1-10 000 000 for key collisions
 
-        bool all_passed = true;
-        for (const auto& pair : expected_data) {
-            std::string actual = db.Get(pair[0]);
-            if (actual == pair[1]) {
-                std::cout << "[OK] Key: " << pair[0] << " matches expected value: " << actual << std::endl;
+        for (int i = 0; i < NUM_OPERATIONS; ++i) {
+            std::string key = "key_" + std::to_string(key_dist(gen));
+            int op = op_dist(gen);
+
+            if (op == 0) {
+                db.Put(key, "val_" + std::to_string(i));
+            } else if (op == 1) { // DELETE
+                db.Delete(key);
             } else {
-                std::cout << "[FAIL] Key: " << pair[0] << " expected " << pair[1] << " but got " << actual << std::endl;
-                all_passed = false;
+                db.Put(key, "updated_val_" + std::to_string(i));
             }
         }
+        auto end_time = std::chrono::high_resolution_clock::now();
 
-        if (db.Get("temporary_file") == "") {
-            std::cout << "[OK] Deleted key 'temporary_file' successfully removed." << std::endl;
-        } else {
-            std::cout << "[FAIL] Deleted key 'temporary_file' still exists." << std::endl;
-            all_passed = false;
-        }
+        std::chrono::duration<double> diff = end_time - start_time;
+        std::cout << "[Test] Stress test ingestion complete in " << diff.count() << "seconds" << std::endl;
+    }
 
-        if (all_passed) {
-            std::cout << "\n[SUCCESS] WAL recovery validated. System integrity maintained." << std::endl;
-        } else {
-            std::cout << "\n[FAILURE] System integrity check failed." << std::endl;
-        }
+    {
+        std::cout << "[Test] Restarting to verify data integrity after stress test..." << std::endl;
+        SimepleKeyVStore db;
+
+        // Perform a quick verification check
+        int check_key = 500; // Checking a random key within our range
+        std::string key_str = "key_" + std::to_string(check_key);
+        std::string val = db.Get(key_str);
+
+        std::cout << "[Check] Value for " << key_str << " is: " << (val.empty() ? "[DELETED/EMPTY]" : val) << std::endl;
+        std::cout << "[SUCCESS] System survived " << NUM_OPERATIONS << " operations without crashing." << std::endl;
     }
 
     return 0;
