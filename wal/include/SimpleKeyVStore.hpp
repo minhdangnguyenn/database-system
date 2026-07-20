@@ -31,7 +31,6 @@ class SimepleKeyVStore {
         void write_wal(const OperationType&, const std::string&, const std::string&);
         void load_wal();
 
-
 };
 
 #endif
