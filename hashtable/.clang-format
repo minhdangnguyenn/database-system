@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+Standard: Latest
+
+# length lomit
+ColumnLimit: 120
+
+# tweaks to prevent ugly wrapping:
+AllowShortFunctionsOnASingleLine: Empty
+IndentWidth: 4
