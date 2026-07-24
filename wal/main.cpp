@@ -1,8 +1,8 @@
-#include <iostream>
-#include <string>
-#include <random> // Essential for random operations
-#include <chrono>
 #include "./include/SimpleKeyVStore.hpp"
+#include <chrono>
+#include <iostream>
+#include <random> // Essential for random operations
+#include <string>
 
 int main() {
     const int NUM_OPERATIONS = 1000000; // 1 000 000
@@ -16,7 +16,9 @@ int main() {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> op_dist(0, 2);
-        std::uniform_int_distribution<> key_dist(1, 1000000); // Using 1-10 000 000 for key collisions
+
+        // Using 1-10 000 000 for key collisions
+        std::uniform_int_distribution<> key_dist(1, 1000000);
 
         for (int i = 0; i < NUM_OPERATIONS; ++i) {
             std::string key = "key_" + std::to_string(key_dist(gen));
