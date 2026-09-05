@@ -3,7 +3,7 @@ AccessModifierOffset: -4
 Standard: Latest
 
 # length lomit
-ColumnLimit: 120
+ColumnLimit: 90
 
 # tweaks to prevent ugly wrapping:
 AllowShortFunctionsOnASingleLine: Empty

@@ -1,33 +1,21 @@
-#include <cstdint>
-#ifndef HASHTABLE
+#include <cstddef>
+#include <vector>
 
-struct tuple_t {
-    uint32_t key;
-    uint32_t rid;
-    tuple_t() {
-        key = 0;
-        rid = 0;
-    }
+template <typename K, typename V> struct Entry {
+    K key;
+    V value;
+    bool is_occupied;
 };
 
-struct relation_t {
-    tuple_t *data = nullptr;
-    uint32_t number_tuples = 0;
-    ~relation_t() {
-        delete[] data;
-    }
-};
-
-class HashTable {
+template <typename K, typename V> class HashTable {
 private:
-    relation_t R_;
-    relation_t S_;
-    void probe();
-    void build();
+    std::vector<Entry<K, V>> table;
 
 public:
-    HashTable(relation_t R_, relation_t S_) : R_(R_), S_(S_) {};
-    ~HashTable() {};
+    HashTable(size_t capacity);
+    bool insert(const K &key, const V &value);
+    bool erase(const K &key);
+    size_t size() const;
+    size_t capacity() const;
+    bool empty();
 };
-
-#endif // HASHTABLE
