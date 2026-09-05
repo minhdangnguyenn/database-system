@@ -1,13 +1,15 @@
 #include "./include/hashtable.hpp"
 #include <cmath>
-#include <cstddef>
 #include <cstring>
 #include <vector>
 
 constexpr double LOAD_FACTOR = 0.7;
 
 template <typename K, typename V> HashTable<K, V>::HashTable(size_t capacity) {
-    this->table.reserve(capacity);
+    this->table.resize(capacity);
+    for (int i = 0; i < capacity; i++) {
+        this->table[i] = {nullptr, nullptr};
+    }
 }
 
 static bool isPrime(int num) {
@@ -21,24 +23,52 @@ static bool isPrime(int num) {
 }
 
 template <typename K, typename V>
+__attribute__((hot)) inline size_t HashTable<K, V>::hashfunction(const K &key) {
+    // convert key into a number that can be used to hash
+    // if key is smth like str, it does not support mod capacity
+    return std::hash<K>{}(key) % this->capacity();
+}
+
+template <typename K, typename V>
 bool HashTable<K, V>::insert(const K &key, const V &value) {
     // if full => resize
     if (this->capacity() * LOAD_FACTOR <= this->size()) {
+
+        // resize is not enough here, need to rehash existing entries
+        std::vector<std::pair<K, V>> existing_entries;
+        for (auto i = 0; i < this->table.size(); i++) {
+            if (this->table[i]) {
+                existing_entries.push_back({this->table[i].first, this->table[i].second});
+            }
+        }
+        // resize is not enough here
         size_t new_capacity = this->capacity() * 2;
         // round up to the first prime numbers
         while (!isPrime(new_capacity)) {
             new_capacity++;
         }
-
-        // resize is not enough here
-        this->table.resize(new_capacity);
+        // this->table.resize(new_capacity);
+        std::vector<std::pair<K, V>> new_table(new_capacity);
+        for (int i = 0; i < existing_entries.size(); i++) {
+            auto idx = this->hashfunction(existing_entries[i].first);
+            // collision handle
+            while (this->table[idx]) {
+                idx = (idx + 1) % new_capacity;
+            }
+            new_table[idx].first = existing_entries[i].first;
+            new_table[idx].second = existing_entries[i].second;
+        }
     }
 
-    // if not full, just insert
+    // then insert
     // check collision
-    while (this->table[key])
-        key++;
-    this->table.insert(key, value);
+    size_t idx = this->hashfunction(key);
+
+    // check whether collision happens
+    while (this->table[idx] && idx < this->table.size()) {
+        idx++;
+    }
+    this->table[idx] = {key, value};
 };
 
 template <typename K, typename V> size_t HashTable<K, V>::size() const {

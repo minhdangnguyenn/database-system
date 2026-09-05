@@ -1,15 +1,10 @@
 #include <cstddef>
+#include <optional>
 #include <vector>
-
-template <typename K, typename V> struct Entry {
-    K key;
-    V value;
-    bool is_occupied;
-};
 
 template <typename K, typename V> class HashTable {
 private:
-    std::vector<Entry<K, V>> table;
+    std::vector<std::optional<std::pair<K, V>>> table;
 
 public:
     HashTable(size_t capacity);
@@ -18,4 +13,5 @@ public:
     size_t size() const;
     size_t capacity() const;
     bool empty();
+    size_t hashfunction(const K &key);
 };
