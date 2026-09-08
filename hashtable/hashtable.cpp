@@ -8,6 +8,7 @@ constexpr double LOAD_FACTOR = 0.7;
 
 template <typename K, typename V> HashTable<K, V>::HashTable(size_t capacity) {
     this->table.resize(capacity);
+    this->size_ = 0;
     // for (int i = 0; i < capacity; i++) {
     //     this->table[i] = {nullptr, nullptr};
     // }
@@ -66,14 +67,15 @@ bool HashTable<K, V>::insert(const K &key, const V &value) {
     size_t idx = this->hashfunction(key);
 
     // check whether collision happens
-    while (idx < this->table.size()) {
+    while (this->table[idx]) {
         idx++;
     }
     this->table[idx] = {key, value};
+    this->size_++;
 };
 
 template <typename K, typename V> size_t HashTable<K, V>::size() const {
-    return this->table.size();
+    return this->size_;
 }
 
 template <typename K, typename V> size_t HashTable<K, V>::capacity() const {
@@ -87,11 +89,10 @@ template <typename K, typename V> bool HashTable<K, V>::erase(const K &key) {
     int idx;
     for (int i = 0; i < this->table.size(); i++) {
         if (this->table[i]->first == key) {
-            idx = i;
+            this->table[i] == std::nullopt;
+            break;
         }
     }
-
-    this->table.erase(this->table.begin() + idx);
 
     return true;
 }
