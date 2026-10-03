@@ -38,7 +38,7 @@ bool HashTable<K, V>::insert(const K &key, const V &value) {
 
         // resize is not enough here, need to rehash existing entries
         std::vector<std::optional<std::pair<K, V>>> existing_entries;
-        for (auto i = 0; i < this->table.size(); i++) {
+        for (size_t i = 0; i < this->table.size(); i++) {
             if (this->table[i]) {
                 existing_entries.push_back(this->table[i]);
             }
@@ -51,7 +51,7 @@ bool HashTable<K, V>::insert(const K &key, const V &value) {
         }
         // this->table.resize(new_capacity);
         std::vector<std::optional<std::pair<K, V>>> new_table(new_capacity);
-        for (int i = 0; i < existing_entries.size(); i++) {
+        for (size_t i = 0; i < existing_entries.size(); i++) {
             auto idx = this->hashfunction(existing_entries[i]->first);
             // collision handle
             while (this->table[idx]) {
@@ -72,6 +72,7 @@ bool HashTable<K, V>::insert(const K &key, const V &value) {
     }
     this->table[idx] = {key, value};
     this->size_++;
+    return true;
 };
 
 template <typename K, typename V> size_t HashTable<K, V>::size() const {
@@ -86,13 +87,13 @@ template <typename K, typename V> bool HashTable<K, V>::erase(const K &key) {
     if (this->size() == 0)
         return false;
 
-    int idx;
-    for (int i = 0; i < this->table.size(); i++) {
-        if (this->table[i]->first == key) {
-            this->table[i] == std::nullopt;
-            break;
+    for (size_t i = 0; i < this->table.size(); i++) {
+        if (this->table[i] && this->table[i]->first == key) {
+            this->table[i] = std::nullopt;
+            this->size_--;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
